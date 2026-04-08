@@ -9,6 +9,7 @@ django-allauth==65.14.3
 django-environ==0.13.0
 django-esewa==1.1.0
 environ==1.0
+gunicorn==21.2.0
 idna==3.11
 pillow==12.1.1
 psycopg2-binary==2.9.11
