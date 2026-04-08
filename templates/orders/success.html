@@ -1,0 +1,518 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --sn-green: #2d7a4f;
+    --sn-green-light: #3a9962;
+    --sn-gold: #c9a84c;
+    --sn-dark: #0e1a12;
+    --sn-card: #ffffff;
+    --sn-border: #e2e8e4;
+    --sn-text: #1a2e22;
+    --sn-muted: #6b7f72;
+    --sn-bg: #f4f7f5;
+    --sn-stripe: #635bff;
+    --sn-esewa: #60bb46;
+    --radius: 4px;
+    --shadow: 0 2px 20px rgba(0,0,0,0.09);
+  }
+
+  .success-page {
+    background: var(--sn-bg);
+    min-height: 100vh;
+    padding: 40px 0 60px;
+  }
+
+  .success-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Banner */
+  .success-banner {
+    text-align: center;
+    padding: 0 0 40px;
+    animation: fadeSlideUp 0.6s ease both;
+  }
+
+  .success-icon-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2.5px solid var(--sn-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 1.8rem;
+    animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    background: rgba(45,122,79,0.06);
+  }
+
+  .success-icon-ring.stripe-ring {
+    border-color: var(--sn-stripe);
+    background: rgba(99,91,255,0.05);
+  }
+
+  .success-icon-ring.cod-ring {
+    border-color: var(--sn-dark);
+    background: rgba(14,26,18,0.04);
+  }
+
+  .success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    color: var(--sn-dark);
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+    animation: fadeSlideUp 0.6s ease 0.1s both;
+  }
+
+  .success-subtitle {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--sn-muted);
+    animation: fadeSlideUp 0.6s ease 0.2s both;
+  }
+
+  /* Main card */
+  .success-card {
+    background: var(--sn-card);
+    border: 1px solid var(--sn-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: fadeSlideUp 0.6s ease 0.25s both;
+  }
+
+  .success-card-bar {
+    height: 4px;
+  }
+
+  .bar-green  { background: var(--sn-green); }
+  .bar-stripe { background: var(--sn-stripe); }
+  .bar-dark   { background: var(--sn-dark); }
+
+  /* Card header */
+  .card-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--sn-border);
+    background: #fafcfa;
+  }
+
+  .meta-block {}
+
+  .meta-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sn-muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .meta-value {
+    font-size: 0.875rem;
+    color: var(--sn-text);
+    font-weight: 600;
+    word-break: break-all;
+    line-height: 1.4;
+  }
+
+  .meta-value.mono {
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+  }
+
+  .payment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 20px;
+    margin-top: 2px;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .badge-esewa  { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+  .badge-stripe { background: #ede9fe; color: #3730a3; border: 1px solid #c4b5fd; }
+  .badge-cod    { background: #f0f4f1; color: #1a2e22; border: 1px solid #d0ddd4; }
+
+  /* Sections */
+  .card-section {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--sn-border);
+  }
+
+  .card-section:last-child { border-bottom: none; }
+
+  .section-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sn-muted);
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--sn-border);
+  }
+
+  /* Items */
+  .order-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f5f2;
+    gap: 12px;
+  }
+
+  .order-item-row:last-child { border-bottom: none; }
+
+  .order-item-left {}
+  .order-item-name { font-size: 0.875rem; font-weight: 600; color: var(--sn-text); }
+  .order-item-variant { font-size: 0.75rem; color: var(--sn-muted); margin-top: 2px; }
+  .order-item-qty { font-size: 0.75rem; color: var(--sn-muted); }
+
+  .order-item-price {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--sn-text);
+    white-space: nowrap;
+  }
+
+  /* Totals */
+  .totals-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--sn-muted);
+    margin-bottom: 8px;
+  }
+
+  .totals-free { color: var(--sn-green); font-weight: 600; }
+
+  .totals-final {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--sn-text);
+    padding-top: 12px;
+    border-top: 2px solid var(--sn-dark);
+    margin-top: 8px;
+  }
+
+  /* Address */
+  .address-text {
+    font-size: 0.875rem;
+    color: var(--sn-muted);
+    line-height: 2;
+  }
+
+  .address-text strong { color: var(--sn-text); font-weight: 600; }
+
+  /* COD Notice */
+  .cod-notice {
+    margin: 0 28px 20px;
+    padding: 14px 18px;
+    background: #fffbf0;
+    border: 1px solid #ffe0b2;
+    border-left: 3px solid #e65100;
+    border-radius: var(--radius);
+    font-size: 0.82rem;
+    color: var(--sn-muted);
+    line-height: 1.7;
+  }
+
+  .cod-notice-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #e65100;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  /* Actions */
+  .success-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 24px 28px;
+    border-top: 1px solid var(--sn-border);
+    background: #fafcfa;
+  }
+
+  .btn-primary {
+    padding: 14px 20px;
+    background: var(--sn-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-primary:hover {
+    background: var(--sn-green);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    padding: 14px 20px;
+    background: transparent;
+    color: var(--sn-text);
+    border: 1.5px solid var(--sn-border);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--sn-green);
+    color: var(--sn-green);
+    transform: translateY(-1px);
+  }
+
+  .btn-retry-stripe {
+    grid-column: 1 / -1;
+    padding: 14px 20px;
+    background: var(--sn-stripe);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-retry-stripe:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* Animations */
+  @keyframes scaleIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  @keyframes fadeSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  @media (max-width: 640px) {
+    .card-header { grid-template-columns: 1fr 1fr; }
+    .success-actions { grid-template-columns: 1fr; }
+    .card-section, .cod-notice { padding-left: 16px; padding-right: 16px; }
+    .success-actions { padding: 16px; }
+    .cod-notice { margin: 0 0 16px; }
+  }
+
+  @media (max-width: 420px) {
+    .card-header { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="success-page">
+  <div class="success-container">
+
+    <!-- Banner -->
+    <div class="success-banner">
+      {% if order.payment_method == 'stripe' %}
+        <div class="success-icon-ring stripe-ring">✓</div>
+        <h1 class="success-title">Payment Successful</h1>
+        <p class="success-subtitle">Paid via Stripe · Order Confirmed</p>
+      {% elif order.payment_method == 'esewa' %}
+        <div class="success-icon-ring">✓</div>
+        <h1 class="success-title">Payment Successful</h1>
+        <p class="success-subtitle">Paid via eSewa · Order Confirmed</p>
+      {% else %}
+        <div class="success-icon-ring cod-ring">◎</div>
+        <h1 class="success-title">Order Placed</h1>
+        <p class="success-subtitle">Cash on Delivery · Pay When Delivered</p>
+      {% endif %}
+    </div>
+
+    <!-- Main Card -->
+    <div class="success-card">
+      <div class="success-card-bar
+        {% if order.payment_method == 'stripe' %}bar-stripe
+        {% elif order.payment_method == 'esewa' %}bar-green
+        {% else %}bar-dark{% endif %}">
+      </div>
+
+      <!-- Header: order meta -->
+      <div class="card-header">
+        <div class="meta-block">
+          <p class="meta-label">Order Number</p>
+          <p class="meta-value mono">{{ order.order_number }}</p>
+        </div>
+        <div class="meta-block">
+          <p class="meta-label">Order Date</p>
+          <p class="meta-value">{{ order.created_at|date:"M d, Y" }}</p>
+          <p style="font-size:0.72rem;color:var(--sn-muted);margin-top:2px;">{{ order.created_at|time:"h:i A" }}</p>
+        </div>
+        <div class="meta-block">
+          <p class="meta-label">Payment</p>
+          {% if order.payment_method == 'stripe' %}
+            <span class="payment-badge badge-stripe"><span class="badge-dot"></span> Paid via Stripe</span>
+          {% elif order.payment_method == 'esewa' %}
+            <span class="payment-badge badge-esewa"><span class="badge-dot"></span> Paid via eSewa</span>
+          {% else %}
+            <span class="payment-badge badge-cod"><span class="badge-dot"></span> Cash on Delivery</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="card-section">
+        <p class="section-title">Items Ordered</p>
+        {% for item in order.items.all %}
+        <div class="order-item-row">
+          <div class="order-item-left">
+            <p class="order-item-name">{{ item.product_name }}</p>
+            {% if item.variant_name %}
+            <p class="order-item-variant">{{ item.variant_name }}</p>
+            {% endif %}
+            <p class="order-item-qty">Qty: {{ item.quantity }}</p>
+          </div>
+          <p class="order-item-price">NPR {{ item.total_price }}</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Totals -->
+      <div class="card-section">
+        <p class="section-title">Order Total</p>
+        <div class="totals-row">
+          <span>Subtotal</span>
+          <span>NPR {{ order.subtotal }}</span>
+        </div>
+        <div class="totals-row">
+          <span>Shipping</span>
+          <span class="totals-free">Free</span>
+        </div>
+        <div class="totals-row">
+          <span>Tax</span>
+          <span>NPR {{ order.tax }}</span>
+        </div>
+        <div class="totals-final">
+          <span>Total</span>
+          <span>NPR {{ order.total }}</span>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="card-section">
+        <p class="section-title">Delivery Address</p>
+        <div class="address-text">
+          <strong>{{ order.full_name }}</strong><br>
+          {{ order.address_line1 }}{% if order.address_line2 %}, {{ order.address_line2 }}{% endif %}<br>
+          {{ order.city }}, {{ order.state_province }} {{ order.postal_code }}<br>
+          {{ order.country }}<br>
+          <span style="margin-top:6px;display:inline-block;">{{ order.email }} &nbsp;·&nbsp; {{ order.phone }}</span>
+        </div>
+      </div>
+
+      <!-- COD Notice -->
+      {% if order.payment_method == 'cod' %}
+      <div class="cod-notice">
+        <p class="cod-notice-title">⚠ Cash on Delivery</p>
+        Please have <strong>NPR {{ order.total }}</strong> ready when your order arrives. Our delivery team will collect payment at your doorstep.
+      </div>
+      {% endif %}
+
+      <!-- Unpaid stripe notice -->
+      {% if not order.is_paid and order.payment_method == 'stripe' %}
+      <div class="cod-notice" style="border-left-color:#635bff;background:#f5f3ff;border-color:#c4b5fd;">
+        <p class="cod-notice-title" style="color:#3730a3;">⏳ Payment Incomplete</p>
+        Your order is saved but payment was not completed. Retry below or change payment method.
+      </div>
+      {% endif %}
+
+      <!-- Actions -->
+      <div class="success-actions">
+        {% if not order.is_paid and order.payment_method == 'stripe' %}
+          <a href="{% url 'orders:stripe_checkout' order_number=order.order_number %}"
+             class="btn-retry-stripe">
+            Retry Stripe Payment
+          </a>
+          <a href="{% url 'orders:payment_selection' order_number=order.order_number %}"
+             class="btn-secondary" style="grid-column:1/-1;">
+            Choose Different Payment
+          </a>
+        {% endif %}
+        <a href="{% url 'products:home' %}" class="btn-primary">
+          Continue Shopping
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'orders:list' %}" class="btn-secondary">
+          View All Orders
+        </a>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </div>
+</section>
+{% endblock %}

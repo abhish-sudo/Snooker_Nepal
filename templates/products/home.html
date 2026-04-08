@@ -1,0 +1,962 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Snooker Nepal — Premium Snooker Equipment{% endblock %}
+{% block meta_description %}Nepal's #1 destination for professional snooker cues, tips, chalk, cases and accessories. Shop online, delivered across Nepal.{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ══════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════ */
+    .hero {
+        position: relative;
+        min-height: 92vh;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        background: var(--black);
+    }
+
+    /* Felt-green radial glow */
+    .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 70% 60% at 60% 50%, rgba(29,122,68,0.18) 0%, transparent 65%),
+            radial-gradient(ellipse 40% 40% at 15% 80%, rgba(201,168,76,0.08) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    /* Diagonal grid lines */
+    .hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+    }
+
+    .hero-inner {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+        padding: 80px 0;
+    }
+
+    .hero-content { max-width: 560px; }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 24px;
+        padding: 6px 14px;
+        background: var(--gold-dim);
+        border: 1px solid rgba(201,168,76,0.2);
+        border-radius: var(--radius-pill);
+    }
+
+    .hero-title {
+        font-family: var(--font-display);
+        font-size: clamp(42px, 6vw, 76px);
+        font-weight: 700;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        color: var(--white);
+        margin-bottom: 24px;
+    }
+    .hero-title em {
+        font-style: italic;
+        color: var(--gold-light);
+    }
+
+    .hero-desc {
+        font-size: 16px;
+        line-height: 1.75;
+        color: var(--white-dim);
+        margin-bottom: 40px;
+        max-width: 440px;
+    }
+
+    .hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 56px;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 36px;
+        padding-top: 36px;
+        border-top: 1px solid var(--border);
+    }
+    .hero-stat-num {
+        font-family: var(--font-display);
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--white);
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+    .hero-stat-label {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--white-dim);
+    }
+
+    /* Hero visual — snooker ball cluster */
+    .hero-visual {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 500px;
+    }
+
+    .hero-ball-wrap {
+        position: relative;
+        width: 380px;
+        height: 380px;
+    }
+    .hero-ball {
+        position: absolute;
+        border-radius: 50%;
+        box-shadow: inset -8px -8px 20px rgba(0,0,0,0.5), inset 4px 4px 12px rgba(255,255,255,0.15), 0 20px 60px rgba(0,0,0,0.6);
+        animation: float 6s ease-in-out infinite;
+    }
+    .hero-ball-main {
+        width: 200px; height: 200px;
+        background: radial-gradient(circle at 35% 35%, #333, #000);
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        animation-duration: 6s;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 80px;
+    }
+    .hero-ball-red {
+        width: 80px; height: 80px;
+        background: radial-gradient(circle at 35% 35%, #e74c3c, #7b241c);
+        top: 20px; right: 40px;
+        animation-duration: 7s; animation-delay: -2s;
+    }
+    .hero-ball-yellow {
+        width: 65px; height: 65px;
+        background: radial-gradient(circle at 35% 35%, #f1c40f, #9a7d0a);
+        bottom: 60px; right: 20px;
+        animation-duration: 8s; animation-delay: -1s;
+    }
+    .hero-ball-green {
+        width: 55px; height: 55px;
+        background: radial-gradient(circle at 35% 35%, #2ecc71, #1a7a3c);
+        bottom: 20px; left: 60px;
+        animation-duration: 5.5s; animation-delay: -3s;
+    }
+    .hero-ball-brown {
+        width: 48px; height: 48px;
+        background: radial-gradient(circle at 35% 35%, #a0522d, #5c2e0e);
+        top: 40px; left: 30px;
+        animation-duration: 7.5s; animation-delay: -0.5s;
+    }
+    .hero-ring {
+        position: absolute;
+        inset: -30px;
+        border-radius: 50%;
+        border: 1px solid rgba(201,168,76,0.12);
+        animation: spin 20s linear infinite;
+    }
+    .hero-ring-2 {
+        inset: -60px;
+        border-color: rgba(29,122,68,0.08);
+        animation-duration: 35s;
+        animation-direction: reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-16px); }
+    }
+    @keyframes float-main {
+        0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+        50%       { transform: translate(-50%, calc(-50% - 10px)) rotate(5deg); }
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* ══════════════════════════════════════════
+       CATEGORY TILES
+    ══════════════════════════════════════════ */
+    .categories-section { padding: 80px 0 60px; }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px;
+        margin-top: 40px;
+    }
+    .category-tile {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 24px 16px;
+        text-align: center;
+        text-decoration: none;
+        transition: all var(--transition);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .category-tile:hover {
+        border-color: var(--gold);
+        background: var(--gold-dim);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-gold);
+    }
+    .category-tile-icon {
+        font-size: 28px;
+        line-height: 1;
+    }
+    .category-tile-name {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--white-dim);
+        transition: color var(--transition);
+    }
+    .category-tile:hover .category-tile-name { color: var(--gold-light); }
+
+    /* ══════════════════════════════════════════
+       SECTION SHARED
+    ══════════════════════════════════════════ */
+    .products-section { padding: 80px 0; }
+    .section-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    .section-head-left {}
+    .view-all-link {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--gold);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(201,168,76,0.3);
+        padding-bottom: 2px;
+        transition: border-color var(--transition), color var(--transition);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .view-all-link:hover { color: var(--gold-light); border-color: var(--gold); }
+
+    /* ══════════════════════════════════════════
+       PRODUCT GRID & CARDS
+    ══════════════════════════════════════════ */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+
+    .product-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+        position: relative;
+        group: true;
+    }
+    .product-card:hover {
+        border-color: var(--border-hover);
+        box-shadow: var(--shadow);
+        transform: translateY(-4px);
+    }
+
+    .product-img-wrap {
+        position: relative;
+        aspect-ratio: 4/3;
+        overflow: hidden;
+        background: var(--surface-2);
+    }
+    .product-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+
+    .product-img-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        color: rgba(255,255,255,0.1);
+        background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%);
+    }
+
+    .product-badges {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .product-info {
+        padding: 18px 20px 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .product-brand {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--gold);
+    }
+    .product-name {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--white);
+        line-height: 1.3;
+        margin: 0;
+    }
+    .product-desc {
+        font-size: 12.5px;
+        color: var(--white-dim);
+        line-height: 1.5;
+        flex: 1;
+    }
+    .product-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--border);
+    }
+    .product-price-wrap { display: flex; align-items: baseline; gap: 8px; }
+    .product-price {
+        font-family: var(--font-display);
+        font-size: 19px;
+        font-weight: 600;
+        color: var(--white);
+    }
+    .product-price-old {
+        font-size: 13px;
+        color: rgba(255,255,255,0.3);
+        text-decoration: line-through;
+    }
+    .product-sale-badge {
+        font-size: 10px;
+        font-weight: 700;
+        color: #ff8888;
+        background: rgba(192,57,43,0.2);
+        padding: 2px 7px;
+        border-radius: var(--radius-pill);
+        border: 1px solid rgba(192,57,43,0.3);
+    }
+    .product-card-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--gold-dim);
+        border: 1px solid rgba(201,168,76,0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold);
+        flex-shrink: 0;
+        transition: all var(--transition);
+        font-size: 16px;
+    }
+    .product-card:hover .product-card-btn {
+        background: var(--gold);
+        color: var(--black);
+        border-color: var(--gold);
+    }
+
+    /* ══════════════════════════════════════════
+       DARK SECTION (New Arrivals / Bestsellers)
+    ══════════════════════════════════════════ */
+    .section-dark {
+        background: var(--deep);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 80px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    .section-dark::before {
+        content: '';
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(29,122,68,0.06) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    /* ══════════════════════════════════════════
+       BRAND STRIP
+    ══════════════════════════════════════════ */
+    .brands-section {
+        padding: 60px 0;
+        border-top: 1px solid var(--border);
+    }
+    .brands-label {
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.2);
+        margin-bottom: 32px;
+    }
+    .brands-strip {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .brand-chip {
+        padding: 8px 20px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-pill);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--white-dim);
+        letter-spacing: 0.04em;
+        transition: all var(--transition);
+        text-decoration: none;
+    }
+    .brand-chip:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: var(--gold-dim);
+    }
+
+    /* ══════════════════════════════════════════
+       WHY US STRIP
+    ══════════════════════════════════════════ */
+    .why-section {
+        padding: 80px 0;
+        background: var(--off-black);
+        border-top: 1px solid var(--border);
+    }
+    .why-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-top: 48px;
+    }
+    .why-item {
+        background: var(--off-black);
+        padding: 40px 32px;
+        text-align: center;
+        transition: background var(--transition);
+    }
+    .why-item:hover { background: var(--surface); }
+    .why-icon {
+        font-size: 32px;
+        margin-bottom: 16px;
+        display: block;
+    }
+    .why-title {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--white);
+        margin-bottom: 10px;
+    }
+    .why-desc {
+        font-size: 13px;
+        color: var(--white-dim);
+        line-height: 1.6;
+    }
+
+    /* ══════════════════════════════════════════
+       CTA BANNER
+    ══════════════════════════════════════════ */
+    .cta-section {
+        padding: 100px 0;
+        background:
+            radial-gradient(ellipse 80% 80% at 50% 50%, rgba(29,122,68,0.15) 0%, transparent 70%),
+            var(--black);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        border-top: 1px solid var(--border);
+    }
+    .cta-section::before {
+        content: '🎱';
+        position: absolute;
+        font-size: 300px;
+        opacity: 0.03;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        line-height: 1;
+    }
+    .cta-inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+    .cta-title {
+        font-family: var(--font-display);
+        font-size: clamp(32px, 5vw, 52px);
+        font-weight: 700;
+        color: var(--white);
+        line-height: 1.1;
+        margin-bottom: 20px;
+        letter-spacing: -0.02em;
+    }
+    .cta-title em { font-style: italic; color: var(--gold-light); }
+    .cta-desc {
+        font-size: 16px;
+        color: var(--white-dim);
+        line-height: 1.7;
+        margin-bottom: 36px;
+    }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    /* ══════════════════════════════════════════
+       EMPTY STATE
+    ══════════════════════════════════════════ */
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: var(--white-dim);
+        font-size: 14px;
+        grid-column: 1 / -1;
+    }
+    .empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media (max-width: 1100px) {
+        .product-grid { grid-template-columns: repeat(3, 1fr); }
+        .categories-grid { grid-template-columns: repeat(3, 1fr); }
+        .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+        .hero-visual { height: 300px; }
+        .hero-ball-wrap { width: 260px; height: 260px; }
+        .hero-ball-main { width: 140px; height: 140px; font-size: 56px; }
+    }
+
+    @media (max-width: 768px) {
+        .product-grid { grid-template-columns: repeat(2, 1fr); }
+        .categories-grid { grid-template-columns: repeat(3, 1fr); }
+        .why-grid { grid-template-columns: repeat(2, 1fr); }
+        .hero { min-height: 70vh; }
+        .hero-visual { display: none; }
+        .hero-stats { gap: 24px; }
+        .section-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+        .why-item { padding: 28px 20px; }
+    }
+
+    @media (max-width: 480px) {
+        .product-grid { grid-template-columns: 1fr; }
+        .categories-grid { grid-template-columns: repeat(2, 1fr); }
+        .why-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-inner">
+            <div class="hero-content">
+                <span class="hero-eyebrow">🏆 Nepal's #1 Snooker Store</span>
+                <h1 class="hero-title">
+                    Play Like a<br>
+                    <em>Champion</em>
+                </h1>
+                <p class="hero-desc">
+                    Professional snooker equipment sourced from the world's finest brands.
+                    From beginner kits to tournament-grade cues — everything your game demands, delivered across Nepal.
+                </p>
+                <div class="hero-actions">
+                    <a href="{% url 'products:list' %}" class="btn btn-primary" style="padding: 14px 32px; font-size: 15px;">
+                        Shop All Equipment
+                    </a>
+                    <a href="{% url 'products:list' %}?filter=new_arrival" class="btn btn-secondary" style="padding: 14px 28px; font-size: 15px;">
+                        New Arrivals
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div>
+                        <div class="hero-stat-num">500+</div>
+                        <div class="hero-stat-label">Products</div>
+                    </div>
+                    <div>
+                        <div class="hero-stat-num">20+</div>
+                        <div class="hero-stat-label">Top Brands</div>
+                    </div>
+                    <div>
+                        <div class="hero-stat-num">5K+</div>
+                        <div class="hero-stat-label">Happy Players</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="hero-ball-wrap">
+                    <div class="hero-ring"></div>
+                    <div class="hero-ring hero-ring-2"></div>
+                    <div class="hero-ball hero-ball-red"></div>
+                    <div class="hero-ball hero-ball-yellow"></div>
+                    <div class="hero-ball hero-ball-green"></div>
+                    <div class="hero-ball hero-ball-brown"></div>
+                    <div class="hero-ball hero-ball-main">🎱</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CATEGORY TILES
+══════════════════════════════════════════ -->
+<section class="categories-section">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 0;">
+            <p class="section-label">Browse by Category</p>
+            <h2 class="section-title">Everything You <em>Need</em></h2>
+        </div>
+        <div class="categories-grid">
+            <a href="{% url 'products:list' %}?category=cues" class="category-tile">
+                <span class="category-tile-icon">🎯</span>
+                <span class="category-tile-name">Cues</span>
+            </a>
+            <a href="{% url 'products:list' %}?category=tips" class="category-tile">
+                <span class="category-tile-icon">⚫</span>
+                <span class="category-tile-name">Tips</span>
+            </a>
+            <a href="{% url 'products:list' %}?category=chalk" class="category-tile">
+                <span class="category-tile-icon">🟦</span>
+                <span class="category-tile-name">Chalk</span>
+            </a>
+            <a href="{% url 'products:list' %}?category=balls" class="category-tile">
+                <span class="category-tile-icon">🎱</span>
+                <span class="category-tile-name">Balls</span>
+            </a>
+            <a href="{% url 'products:list' %}?category=cases" class="category-tile">
+                <span class="category-tile-icon">🧳</span>
+                <span class="category-tile-name">Cue Cases</span>
+            </a>
+            <a href="{% url 'products:list' %}" class="category-tile">
+                <span class="category-tile-icon">✨</span>
+                <span class="category-tile-name">All Items</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FEATURED PRODUCTS
+══════════════════════════════════════════ -->
+<section class="products-section">
+    <div class="container">
+        <div class="section-head">
+            <div class="section-head-left">
+                <p class="section-label">Hand-Picked</p>
+                <h2 class="section-title">Featured <em>Products</em></h2>
+            </div>
+            <a href="{% url 'products:list' %}?filter=featured" class="view-all-link">View All →</a>
+        </div>
+
+        <div class="product-grid">
+            {% for product in featured_products %}
+            <a href="{% url 'products:detail' product.slug %}" class="product-card">
+                <div class="product-img-wrap">
+                    {% if product.get_main_image %}
+                        <img src="{{ product.get_main_image.image.url }}"
+                             alt="{{ product.name }}"
+                             loading="lazy">
+                    {% else %}
+                        <div class="product-img-placeholder">🎱</div>
+                    {% endif %}
+                    <div class="product-badges">
+                        {% if product.is_on_sale %}
+                            <span class="badge badge-red">−{{ product.discount_percentage }}%</span>
+                        {% endif %}
+                        {% if product.is_new_arrival %}
+                            <span class="badge badge-green">New</span>
+                        {% endif %}
+                        {% if product.is_limited_edition %}
+                            <span class="badge badge-gold">Limited</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="product-info">
+                    {% if product.brand %}
+                        <span class="product-brand">{{ product.brand.name }}</span>
+                    {% endif %}
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    {% if product.short_description %}
+                        <p class="product-desc">{{ product.short_description|truncatewords:10 }}</p>
+                    {% endif %}
+                    <div class="product-footer">
+                        <div class="product-price-wrap">
+                            <span class="product-price">NPR {{ product.price|floatformat:0 }}</span>
+                            {% if product.is_on_sale %}
+                                <span class="product-price-old">{{ product.compare_at_price|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="product-card-btn">→</span>
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="empty-state">
+                <div class="empty-state-icon">🎱</div>
+                <p>Featured products coming soon.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     NEW ARRIVALS (dark bg)
+══════════════════════════════════════════ -->
+{% if new_arrivals %}
+<section class="section-dark">
+    <div class="container" style="position: relative; z-index: 1;">
+        <div class="section-head">
+            <div class="section-head-left">
+                <p class="section-label">Just In</p>
+                <h2 class="section-title">New <em>Arrivals</em></h2>
+            </div>
+            <a href="{% url 'products:list' %}?filter=new_arrival" class="view-all-link">View All →</a>
+        </div>
+
+        <div class="product-grid">
+            {% for product in new_arrivals %}
+            <a href="{% url 'products:detail' product.slug %}" class="product-card">
+                <div class="product-img-wrap">
+                    {% if product.get_main_image %}
+                        <img src="{{ product.get_main_image.image.url }}"
+                             alt="{{ product.name }}"
+                             loading="lazy">
+                    {% else %}
+                        <div class="product-img-placeholder">🎱</div>
+                    {% endif %}
+                    <div class="product-badges">
+                        <span class="badge badge-green">New</span>
+                        {% if product.is_on_sale %}
+                            <span class="badge badge-red">−{{ product.discount_percentage }}%</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="product-info">
+                    {% if product.brand %}
+                        <span class="product-brand">{{ product.brand.name }}</span>
+                    {% endif %}
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    {% if product.short_description %}
+                        <p class="product-desc">{{ product.short_description|truncatewords:10 }}</p>
+                    {% endif %}
+                    <div class="product-footer">
+                        <div class="product-price-wrap">
+                            <span class="product-price">NPR {{ product.price|floatformat:0 }}</span>
+                            {% if product.is_on_sale %}
+                                <span class="product-price-old">{{ product.compare_at_price|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="product-card-btn">→</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+<!-- ══════════════════════════════════════════
+     BESTSELLERS
+══════════════════════════════════════════ -->
+{% if bestsellers %}
+<section class="products-section">
+    <div class="container">
+        <div class="section-head">
+            <div class="section-head-left">
+                <p class="section-label">Most Popular</p>
+                <h2 class="section-title">Best <em>Sellers</em></h2>
+            </div>
+            <a href="{% url 'products:list' %}?filter=bestseller" class="view-all-link">View All →</a>
+        </div>
+
+        <div class="product-grid">
+            {% for product in bestsellers %}
+            <a href="{% url 'products:detail' product.slug %}" class="product-card">
+                <div class="product-img-wrap">
+                    {% if product.get_main_image %}
+                        <img src="{{ product.get_main_image.image.url }}"
+                             alt="{{ product.name }}"
+                             loading="lazy">
+                    {% else %}
+                        <div class="product-img-placeholder">🎱</div>
+                    {% endif %}
+                    <div class="product-badges">
+                        <span class="badge badge-gold">Bestseller</span>
+                        {% if product.is_on_sale %}
+                            <span class="badge badge-red">−{{ product.discount_percentage }}%</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="product-info">
+                    {% if product.brand %}
+                        <span class="product-brand">{{ product.brand.name }}</span>
+                    {% endif %}
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    {% if product.short_description %}
+                        <p class="product-desc">{{ product.short_description|truncatewords:10 }}</p>
+                    {% endif %}
+                    <div class="product-footer">
+                        <div class="product-price-wrap">
+                            <span class="product-price">NPR {{ product.price|floatformat:0 }}</span>
+                            {% if product.is_on_sale %}
+                                <span class="product-price-old">{{ product.compare_at_price|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="product-card-btn">→</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+<!-- ══════════════════════════════════════════
+     BRAND STRIP
+══════════════════════════════════════════ -->
+{% if brands %}
+<section class="brands-section">
+    <div class="container">
+        <p class="brands-label">Trusted Brands We Stock</p>
+        <div class="brands-strip">
+            {% for brand in brands %}
+                <a href="{% url 'products:brand' brand.slug %}" class="brand-chip">{{ brand.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+<!-- ══════════════════════════════════════════
+     WHY US
+══════════════════════════════════════════ -->
+<section class="why-section">
+    <div class="container">
+        <div style="text-align: center;">
+            <p class="section-label">Why Snooker Nepal</p>
+            <h2 class="section-title">The <em>Difference</em> We Make</h2>
+        </div>
+        <div class="why-grid">
+            <div class="why-item">
+                <span class="why-icon">🚚</span>
+                <div class="why-title">Fast Delivery</div>
+                <p class="why-desc">Free delivery on orders above NPR 5,000. Express shipping available across all major cities in Nepal.</p>
+            </div>
+            <div class="why-item">
+                <span class="why-icon">🏆</span>
+                <div class="why-title">Pro-Grade Quality</div>
+                <p class="why-desc">Every product is sourced from globally trusted snooker brands used by professional players worldwide.</p>
+            </div>
+            <div class="why-item">
+                <span class="why-icon">💳</span>
+                <div class="why-title">Secure Payments</div>
+                <p class="why-desc">Pay via eSewa, Khalti, credit card or cash on delivery. All transactions are fully encrypted and secure.</p>
+            </div>
+            <div class="why-item">
+                <span class="why-icon">🎱</span>
+                <div class="why-title">Expert Advice</div>
+                <p class="why-desc">Not sure what to buy? Our team of passionate snooker players is always ready to guide your purchase.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CTA BANNER
+══════════════════════════════════════════ -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-inner">
+            <p class="section-label" style="text-align:center;">Ready to Elevate Your Game?</p>
+            <h2 class="cta-title">Find Your <em>Perfect</em> Cue Today</h2>
+            <p class="cta-desc">
+                Browse our full collection of professional snooker equipment.
+                Free delivery. Easy returns. Trusted by players across Nepal.
+            </p>
+            <div class="cta-actions">
+                <a href="{% url 'products:list' %}" class="btn btn-primary" style="padding: 14px 36px; font-size: 15px;">
+                    Shop Now
+                </a>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'accounts:register' %}" class="btn btn-secondary" style="padding: 14px 28px; font-size: 15px;">
+                    Create Account
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,587 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Variables ── */
+  :root {
+    --sn-green: #2d7a4f;
+    --sn-green-light: #3a9962;
+    --sn-gold: #c9a84c;
+    --sn-dark: #0e1a12;
+    --sn-card: #ffffff;
+    --sn-border: #e2e8e4;
+    --sn-text: #1a2e22;
+    --sn-muted: #6b7f72;
+    --sn-bg: #f4f7f5;
+    --sn-error: #c0392b;
+    --radius: 4px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+
+  /* ── Page Layout ── */
+  .checkout-page {
+    background: var(--sn-bg);
+    min-height: 100vh;
+    padding: 40px 0 60px;
+  }
+
+  .checkout-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .checkout-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 600;
+    color: var(--sn-dark);
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+
+  .checkout-subheading {
+    font-size: 0.8rem;
+    color: var(--sn-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .checkout-subheading::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 2px;
+    background: var(--sn-green);
+  }
+
+  /* ── Grid ── */
+  .checkout-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* ── Card ── */
+  .form-card {
+    background: var(--sn-card);
+    border: 1px solid var(--sn-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .form-card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--sn-border);
+    background: #fafcfa;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .card-header-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--sn-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .form-card-title {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--sn-text);
+  }
+
+  .form-card-body {
+    padding: 24px;
+  }
+
+  /* ── Form Fields ── */
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .field-row-full {
+    margin-bottom: 14px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--sn-border);
+    border-radius: var(--radius);
+    background: #fafcfa;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: var(--sn-text);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+  }
+
+  .form-input:focus {
+    border-color: var(--sn-green);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(45,122,79,0.1);
+  }
+
+  .form-input::placeholder {
+    color: #aab8b0;
+    font-size: 0.82rem;
+  }
+
+  textarea.form-input {
+    resize: none;
+    line-height: 1.6;
+  }
+
+  .errorlist {
+    list-style: none;
+    padding: 4px 0 0;
+    margin: 0;
+    font-size: 0.72rem;
+    color: var(--sn-error);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .errorlist li::before { content: '⚠ '; }
+
+  /* ── Order Summary ── */
+  .summary-card {
+    background: var(--sn-card);
+    border: 1px solid var(--sn-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 24px;
+    overflow: hidden;
+  }
+
+  .summary-top {
+    background: var(--sn-dark);
+    padding: 20px 24px;
+  }
+
+  .summary-title {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 4px;
+  }
+
+  .summary-count {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 400;
+  }
+
+  .summary-body {
+    padding: 20px 24px;
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--sn-border);
+    gap: 12px;
+  }
+
+  .summary-item:last-child { border-bottom: none; }
+
+  .summary-item-name {
+    font-size: 0.85rem;
+    color: var(--sn-text);
+    font-weight: 500;
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .summary-item-qty {
+    font-size: 0.72rem;
+    color: var(--sn-muted);
+    margin-top: 2px;
+  }
+
+  .summary-item-price {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--sn-text);
+    white-space: nowrap;
+  }
+
+  .summary-divider {
+    border: none;
+    border-top: 1px solid var(--sn-border);
+    margin: 16px 0 12px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: var(--sn-muted);
+    margin-bottom: 8px;
+  }
+
+  .summary-free {
+    color: var(--sn-green);
+    font-weight: 600;
+  }
+
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--sn-text);
+    padding-top: 12px;
+    border-top: 2px solid var(--sn-dark);
+    margin-top: 8px;
+  }
+
+  /* ── Submit Button ── */
+  .summary-footer {
+    padding: 0 24px 24px;
+  }
+
+  .btn-checkout {
+    width: 100%;
+    padding: 15px 20px;
+    background: var(--sn-green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(45,122,79,0.3);
+  }
+
+  .btn-checkout:hover {
+    background: var(--sn-green-light);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(45,122,79,0.4);
+  }
+
+  .btn-checkout:active { transform: translateY(0); }
+
+  .btn-checkout svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s;
+  }
+
+  .btn-checkout:hover svg { transform: translateX(3px); }
+
+  .secure-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    color: var(--sn-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 12px;
+  }
+
+  .secure-note svg { width: 11px; height: 11px; color: var(--sn-green); }
+
+  /* ── Breadcrumb ── */
+  .checkout-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    color: var(--sn-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .checkout-breadcrumb span { color: var(--sn-green); font-weight: 600; }
+  .checkout-breadcrumb a { color: var(--sn-muted); text-decoration: none; }
+  .checkout-breadcrumb a:hover { color: var(--sn-text); }
+
+  /* ── Step Indicators ── */
+  .checkout-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .step-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .step.active .step-num { background: var(--sn-green); color: #fff; }
+  .step.active .step-label { color: var(--sn-text); }
+  .step.inactive .step-num { background: #e2e8e4; color: var(--sn-muted); }
+  .step.inactive .step-label { color: var(--sn-muted); }
+
+  .step-connector {
+    flex: 1;
+    height: 1px;
+    background: var(--sn-border);
+    margin: 0 12px;
+    max-width: 60px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .checkout-grid {
+      grid-template-columns: 1fr;
+    }
+    .summary-card {
+      position: static;
+      order: -1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .field-row { grid-template-columns: 1fr; }
+    .checkout-page { padding: 24px 0 40px; }
+    .form-card-body { padding: 16px; }
+    .summary-body { padding: 16px; }
+    .summary-footer { padding: 0 16px 16px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+  <div class="checkout-container">
+
+    <!-- Breadcrumb -->
+    <nav class="checkout-breadcrumb">
+      <a href="{% url 'products:home' %}">Home</a>
+      <span>›</span>
+      <a href="{% url 'cart:detail' %}">Cart</a>
+      <span>›</span>
+      <span>Checkout</span>
+    </nav>
+
+    <h1 class="checkout-heading">Checkout</h1>
+    <p class="checkout-subheading">Shipping Details</p>
+
+    <!-- Steps -->
+    <div class="checkout-steps">
+      <div class="step active">
+        <div class="step-num">1</div>
+        <span class="step-label">Details</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step inactive">
+        <div class="step-num">2</div>
+        <span class="step-label">Payment</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step inactive">
+        <div class="step-num">3</div>
+        <span class="step-label">Confirmation</span>
+      </div>
+    </div>
+
+    <form method="POST" id="checkoutForm">
+      {% csrf_token %}
+      <div class="checkout-grid">
+
+        <!-- LEFT: Form -->
+        <div>
+
+          <!-- Contact -->
+          <div class="form-card">
+            <div class="form-card-header">
+              <div class="card-header-icon">1</div>
+              <span class="form-card-title">Contact Information</span>
+            </div>
+            <div class="form-card-body">
+              <div class="field-row">
+                <div class="field-group">
+                  {{ form.first_name }}
+                  {{ form.first_name.errors }}
+                </div>
+                <div class="field-group">
+                  {{ form.last_name }}
+                  {{ form.last_name.errors }}
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field-group">
+                  {{ form.email }}
+                  {{ form.email.errors }}
+                </div>
+                <div class="field-group">
+                  {{ form.phone }}
+                  {{ form.phone.errors }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div class="form-card">
+            <div class="form-card-header">
+              <div class="card-header-icon">2</div>
+              <span class="form-card-title">Delivery Address</span>
+            </div>
+            <div class="form-card-body">
+              <div class="field-row-full field-group">
+                {{ form.address_line1 }}
+                {{ form.address_line1.errors }}
+              </div>
+              <div class="field-row-full field-group">
+                {{ form.address_line2 }}
+              </div>
+              <div class="field-row">
+                <div class="field-group">
+                  {{ form.city }}
+                  {{ form.city.errors }}
+                </div>
+                <div class="field-group">
+                  {{ form.state_province }}
+                  {{ form.state_province.errors }}
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field-group">
+                  {{ form.postal_code }}
+                  {{ form.postal_code.errors }}
+                </div>
+                <div class="field-group">
+                  {{ form.country }}
+                  {{ form.country.errors }}
+                </div>
+              </div>
+              <div class="field-row-full field-group">
+                {{ form.notes }}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: Summary -->
+        <div>
+          <div class="summary-card">
+            <div class="summary-top">
+              <p class="summary-title">Order Summary</p>
+              <p class="summary-count">{{ cart|length }} item{{ cart|length|pluralize }}</p>
+            </div>
+
+            <div class="summary-body">
+              {% for item in cart %}
+              <div class="summary-item">
+                <div>
+                  <p class="summary-item-name">{{ item.product.name }}</p>
+                  <p class="summary-item-qty">Qty: {{ item.quantity }}</p>
+                </div>
+                <span class="summary-item-price">NPR {{ item.total_price }}</span>
+              </div>
+              {% endfor %}
+
+              <hr class="summary-divider">
+
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span>NPR {{ cart.get_total_price }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Shipping</span>
+                <span class="summary-free">Free</span>
+              </div>
+              <div class="summary-row">
+                <span>Tax</span>
+                <span>NPR 0.00</span>
+              </div>
+
+              <div class="summary-total">
+                <span>Total</span>
+                <span>NPR {{ cart.get_total_price }}</span>
+              </div>
+            </div>
+
+            <div class="summary-footer">
+              <button type="submit" class="btn-checkout">
+                Continue to Payment
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </button>
+              <p class="secure-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Secure & Encrypted Checkout
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+
+  </div>
+</section>
+{% endblock %}

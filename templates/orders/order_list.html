@@ -1,0 +1,903 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Account — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --sn-green: #2d7a4f;
+    --sn-green-light: #3a9962;
+    --sn-gold: #c9a84c;
+    --sn-dark: #0e1a12;
+    --sn-card: #ffffff;
+    --sn-border: #e2e8e4;
+    --sn-text: #1a2e22;
+    --sn-muted: #6b7f72;
+    --sn-bg: #f4f7f5;
+    --sn-stripe: #635bff;
+    --sn-esewa: #60bb46;
+    --radius: 4px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  }
+
+  .account-page {
+    background: var(--sn-bg);
+    min-height: 100vh;
+    padding: 40px 0 60px;
+  }
+
+  .account-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Page Header */
+  .account-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--sn-dark);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .account-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    color: var(--sn-dark);
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .account-username {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sn-muted);
+  }
+
+  /* Grid */
+  .account-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+  .sidebar-card {
+    background: var(--sn-card);
+    border: 1px solid var(--sn-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  /* Avatar card */
+  .avatar-card { text-align: center; position: relative; }
+
+  .avatar-card-top {
+    background: var(--sn-dark);
+    padding: 28px 20px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .avatar-card-top::before {
+    content: '🎱';
+    position: absolute;
+    right: -8px; top: -8px;
+    font-size: 4rem;
+    opacity: 0.06;
+  }
+
+  .avatar-wrap {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 14px;
+    cursor: pointer;
+  }
+
+  .avatar-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(45,122,79,0.15);
+    border: 2px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+  .avatar-placeholder {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .avatar-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+    font-weight: 600;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .avatar-wrap:hover .avatar-overlay { opacity: 1; }
+
+  .avatar-overlay-icon { font-size: 1rem; }
+
+  #avatarInput { display: none; }
+
+  .avatar-upload-form {
+    display: none;
+    margin-top: 10px;
+  }
+
+  .avatar-upload-form.active { display: block; }
+
+  .avatar-filename {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 8px;
+    word-break: break-all;
+  }
+
+  .btn-save-photo {
+    padding: 8px 16px;
+    background: var(--sn-green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s;
+  }
+
+  .btn-save-photo:hover { background: var(--sn-green-light); }
+
+  .avatar-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .avatar-handle {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .avatar-card-bottom {
+    padding: 16px 20px;
+  }
+
+  .member-since {
+    font-size: 0.72rem;
+    color: var(--sn-muted);
+    text-align: center;
+  }
+
+  .member-since span {
+    display: block;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #c0d0c8;
+    margin-bottom: 3px;
+  }
+
+  /* Info card */
+  .info-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--sn-border);
+    background: #fafcfa;
+  }
+
+  .info-card-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--sn-text);
+  }
+
+  .btn-edit-toggle {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sn-green);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s;
+  }
+
+  .btn-edit-toggle:hover { color: var(--sn-green-light); }
+
+  .info-card-body { padding: 16px 20px; }
+
+  .info-row {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f5f2;
+  }
+
+  .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .info-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #b0c0b8;
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+
+  .info-value { font-size: 0.82rem; color: var(--sn-text); font-weight: 500; }
+  .info-value.empty { color: #c0d0c8; font-style: italic; font-weight: 400; }
+
+  /* Edit form */
+  .profile-edit-form { display: none; padding: 16px 20px; }
+  .profile-edit-form.active { display: block; }
+
+  .edit-field { margin-bottom: 10px; }
+
+  .edit-label {
+    display: block;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sn-muted);
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+
+  .edit-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--sn-border);
+    border-radius: var(--radius);
+    background: #fafcfa;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    color: var(--sn-text);
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+
+  .edit-input:focus { border-color: var(--sn-green); }
+
+  .btn-save-profile {
+    width: 100%;
+    padding: 11px;
+    background: var(--sn-green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 6px;
+  }
+
+  .btn-save-profile:hover { background: var(--sn-green-light); }
+
+  /* ── Orders Column ── */
+  .orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .orders-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--sn-dark);
+  }
+
+  .orders-count-badge {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sn-muted);
+    background: #e8f0ea;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* Order Card */
+  .order-card {
+    background: var(--sn-card);
+    border: 1px solid var(--sn-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+
+  .order-card:hover {
+    border-color: var(--sn-green);
+    box-shadow: 0 4px 20px rgba(45,122,79,0.1);
+  }
+
+  .order-card-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.2fr;
+    gap: 12px;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--sn-border);
+    background: #fafcfa;
+  }
+
+  .order-meta-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #b0c0b8;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .order-meta-value {
+    font-size: 0.82rem;
+    color: var(--sn-text);
+    font-weight: 600;
+  }
+
+  .order-meta-value.order-number {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    word-break: break-all;
+  }
+
+  /* Status badges */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 20px;
+  }
+
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  .status-paid       { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+  .status-pending    { background: #fff3e0; color: #bf360c; border: 1px solid #ffb74d; }
+  .status-processing { background: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
+  .status-shipped    { background: #f3e5f5; color: #4a148c; border: 1px solid #ce93d8; }
+  .status-delivered  { background: #e8f5e9; color: #1b5e20; border: 1px solid #66bb6a; }
+  .status-cancelled  { background: #ffebee; color: #b71c1c; border: 1px solid #ef9a9a; }
+
+  .order-card-items { padding: 12px 20px; }
+
+  .order-item-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #f4f8f5;
+    font-size: 0.82rem;
+  }
+
+  .order-item-preview:last-child { border-bottom: none; }
+  .order-item-name  { color: var(--sn-text); font-weight: 500; }
+  .order-item-qty   { font-size: 0.72rem; color: var(--sn-muted); margin-left: 4px; }
+  .order-item-price { font-weight: 600; color: var(--sn-text); }
+
+  .order-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: #fafcfa;
+    border-top: 1px solid var(--sn-border);
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .order-total-block { display: flex; flex-direction: column; }
+  .order-total-label { font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase; color: #b0c0b8; font-weight: 600; margin-bottom: 2px; }
+  .order-total-value { font-size: 1rem; font-weight: 700; color: var(--sn-text); }
+
+  .footer-actions { display: flex; align-items: center; gap: 8px; }
+
+  .btn-complete-payment {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    background: var(--sn-stripe);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+
+  .btn-complete-payment:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .btn-cancel-order {
+    padding: 7px 14px;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    color: #c0392b;
+    border: 1.5px solid #f5c6c6;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel-order:hover { background: #fdf2f2; border-color: #c0392b; }
+
+  /* Empty state */
+  .empty-orders {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--sn-card);
+    border: 1px dashed var(--sn-border);
+    border-radius: var(--radius);
+  }
+
+  .empty-icon { font-size: 2.5rem; margin-bottom: 16px; opacity: 0.25; }
+
+  .empty-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--sn-text);
+    margin-bottom: 8px;
+  }
+
+  .empty-text { font-size: 0.82rem; color: var(--sn-muted); margin-bottom: 24px; }
+
+  .btn-shop {
+    display: inline-block;
+    padding: 13px 28px;
+    background: var(--sn-dark);
+    color: #fff;
+    border-radius: var(--radius);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .btn-shop:hover { background: var(--sn-green); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  .modal-box {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 36px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: scaleIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  .modal-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: #c0392b;
+  }
+
+  .modal-icon { font-size: 2rem; margin-bottom: 14px; }
+  .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: var(--sn-dark); margin-bottom: 8px; }
+  .modal-text { font-size: 0.82rem; color: var(--sn-muted); line-height: 1.7; margin-bottom: 24px; }
+
+  .modal-actions { display: flex; gap: 10px; }
+
+  .modal-btn-keep {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    color: var(--sn-text);
+    border: 1.5px solid var(--sn-border);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .modal-btn-keep:hover { border-color: var(--sn-text); }
+
+  .modal-btn-confirm {
+    flex: 1;
+    padding: 12px;
+    background: #c0392b;
+    color: #fff;
+    border: 1.5px solid #c0392b;
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .modal-btn-confirm:hover { opacity: 0.85; }
+
+  @keyframes scaleIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .account-grid { grid-template-columns: 1fr; }
+    .sidebar { order: -1; }
+    .sidebar-card { max-width: 400px; }
+    .avatar-card { display: grid; grid-template-columns: 1fr 1fr; }
+    .avatar-card-top { border-radius: var(--radius) 0 0 var(--radius); }
+    .avatar-card-bottom { display: flex; align-items: center; justify-content: center; }
+  }
+
+  @media (max-width: 640px) {
+    .order-card-header { grid-template-columns: 1fr 1fr; }
+    .order-card-footer { flex-direction: column; align-items: flex-start; }
+    .footer-actions { width: 100%; justify-content: flex-end; }
+    .sidebar-card { max-width: 100%; }
+    .avatar-card { display: block; }
+    .avatar-card-top { border-radius: 0; }
+  }
+
+  @media (max-width: 480px) {
+    .order-card-header { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="account-page">
+  <div class="account-container">
+
+    <!-- Header -->
+    <div class="account-header">
+      <div>
+        <h1 class="account-title">My Account</h1>
+      </div>
+      <span class="account-username">@{{ user.username }}</span>
+    </div>
+
+    <div class="account-grid">
+
+      <!-- ── Sidebar ── -->
+      <aside class="sidebar">
+
+        <!-- Avatar Card -->
+        <div class="sidebar-card avatar-card">
+          <div class="avatar-card-top">
+            <form method="POST" enctype="multipart/form-data"
+                  action="{% url 'accounts:profile' %}" id="avatarForm">
+              {% csrf_token %}
+
+              <div class="avatar-wrap"
+                   onclick="document.getElementById('avatarInput').click()"
+                   title="Click to change photo">
+                <div class="avatar-circle">
+                  {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.get_full_name }}" id="avatarPreview">
+                  {% else %}
+                    <span class="avatar-placeholder">
+                      {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                    </span>
+                  {% endif %}
+                </div>
+                <div class="avatar-overlay">
+                  <span class="avatar-overlay-icon">📷</span>
+                  <span style="font-size:0.55rem;letter-spacing:0.1em;">Change</span>
+                </div>
+              </div>
+
+              <input type="file" name="avatar" id="avatarInput" accept="image/*">
+
+              <div class="avatar-upload-form" id="avatarUploadForm">
+                <p class="avatar-filename" id="avatarFilename"></p>
+                <button type="submit" class="btn-save-photo">Save Photo</button>
+              </div>
+
+            </form>
+
+            <p class="avatar-name">{{ user.get_full_name|default:user.username }}</p>
+            <p class="avatar-handle">@{{ user.username }}</p>
+          </div>
+          <div class="avatar-card-bottom">
+            <p class="member-since">
+              <span>Member Since</span>
+              {{ user.date_joined|date:"F Y" }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="sidebar-card">
+          <div class="info-card-header">
+            <span class="info-card-title">Contact Info</span>
+            <button class="btn-edit-toggle" onclick="toggleEditForm()">Edit</button>
+          </div>
+
+          <!-- Static view -->
+          <div class="info-card-body" id="profileStaticView">
+            <div class="info-row">
+              <span class="info-label">Full Name</span>
+              <span class="info-value {% if not user.get_full_name %}empty{% endif %}">
+                {{ user.get_full_name|default:"Not set" }}
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ user.email|default:"Not set" }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Username</span>
+              <span class="info-value">{{ user.username }}</span>
+            </div>
+          </div>
+
+          <!-- Edit form -->
+          <form class="profile-edit-form" id="profileEditForm"
+                method="POST" enctype="multipart/form-data"
+                action="{% url 'accounts:profile' %}">
+            {% csrf_token %}
+            <div class="edit-field">
+              <label class="edit-label">First Name</label>
+              <input type="text" name="first_name" class="edit-input"
+                     value="{{ user.first_name }}" placeholder="First Name">
+            </div>
+            <div class="edit-field">
+              <label class="edit-label">Last Name</label>
+              <input type="text" name="last_name" class="edit-input"
+                     value="{{ user.last_name }}" placeholder="Last Name">
+            </div>
+            <div class="edit-field">
+              <label class="edit-label">Email</label>
+              <input type="email" name="email" class="edit-input"
+                     value="{{ user.email }}" placeholder="your@email.com">
+            </div>
+            <button type="submit" class="btn-save-profile">Save Changes</button>
+          </form>
+
+        </div>
+
+      </aside>
+
+      <!-- ── Orders ── -->
+      <div>
+        <div class="orders-header">
+          <h2 class="orders-title">Order History</h2>
+          <span class="orders-count-badge">
+            {{ orders.count }} order{{ orders.count|pluralize }}
+          </span>
+        </div>
+
+        {% if orders %}
+          {% for order in orders %}
+          <div class="order-card">
+
+            <div class="order-card-header">
+              <div>
+                <p class="order-meta-label">Order Number</p>
+                <p class="order-meta-value order-number">{{ order.order_number }}</p>
+              </div>
+              <div>
+                <p class="order-meta-label">Date</p>
+                <p class="order-meta-value">{{ order.created_at|date:"M d, Y" }}</p>
+                <p style="font-size:0.65rem;color:var(--sn-muted);margin-top:1px;">{{ order.created_at|time:"h:i A" }}</p>
+              </div>
+              <div>
+                <p class="order-meta-label">Status</p>
+                <span class="status-badge status-{{ order.status }}">
+                  <span class="badge-dot"></span>
+                  {{ order.get_status_display }}
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <p class="order-meta-label">Amount</p>
+                <p class="order-meta-value">NPR {{ order.total }}</p>
+              </div>
+            </div>
+
+            <div class="order-card-items">
+              {% for item in order.items.all %}
+              <div class="order-item-preview">
+                <span class="order-item-name">
+                  {{ item.product_name }}
+                  <span class="order-item-qty">× {{ item.quantity }}</span>
+                </span>
+                <span class="order-item-price">NPR {{ item.total_price }}</span>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="order-card-footer">
+              <div class="order-total-block">
+                <span class="order-total-label">Total</span>
+                <span class="order-total-value">NPR {{ order.total }}</span>
+              </div>
+              <div class="footer-actions">
+                {% if order.payment_method == 'stripe' and not order.is_paid and order.status == 'pending' %}
+                <a href="{% url 'orders:payment_selection' order_number=order.order_number %}"
+                   class="btn-complete-payment">
+                  Complete Payment →
+                </a>
+                {% endif %}
+                {% if order.can_be_cancelled %}
+                <button class="btn-cancel-order"
+                        onclick="openCancelModal('{{ order.order_number }}')">
+                  Cancel
+                </button>
+                {% endif %}
+              </div>
+            </div>
+
+          </div>
+          {% endfor %}
+
+          <div style="margin-top:20px;">
+            <a href="{% url 'products:list' %}" class="btn-shop">
+              Continue Shopping
+            </a>
+          </div>
+
+        {% else %}
+          <div class="empty-orders">
+            <div class="empty-icon">◎</div>
+            <h3 class="empty-title">No orders yet</h3>
+            <p class="empty-text">You haven't placed any orders. Start shopping!</p>
+            <a href="{% url 'products:list' %}" class="btn-shop">Browse Products</a>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Cancel Modal -->
+<div class="modal-overlay" id="cancelModal">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <h2 class="modal-title">Cancel Order?</h2>
+    <p class="modal-text">Are you sure you want to cancel this order? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="modal-btn-keep" onclick="closeCancelModal()">Keep Order</button>
+      <form id="cancelForm" method="POST" action="" style="flex:1;display:contents;">
+        {% csrf_token %}
+        <button type="submit" class="modal-btn-confirm" style="flex:1;">Yes, Cancel</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Avatar upload
+  document.getElementById('avatarInput').addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+      const file = this.files[0];
+      document.getElementById('avatarFilename').textContent = file.name;
+      document.getElementById('avatarUploadForm').classList.add('active');
+      const reader = new FileReader();
+      reader.onload = e => {
+        const circle = document.querySelector('.avatar-circle');
+        circle.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Edit toggle
+  function toggleEditForm() {
+    const staticView = document.getElementById('profileStaticView');
+    const editForm = document.getElementById('profileEditForm');
+    const btn = document.querySelector('.btn-edit-toggle');
+    const isEditing = editForm.classList.contains('active');
+    editForm.classList.toggle('active', !isEditing);
+    staticView.style.display = isEditing ? 'block' : 'none';
+    btn.textContent = isEditing ? 'Edit' : 'Cancel';
+  }
+
+  // Cancel modal
+  function openCancelModal(orderNumber) {
+    document.getElementById('cancelForm').action = `/orders/cancel/${orderNumber}/`;
+    document.getElementById('cancelModal').classList.add('active');
+  }
+
+  function closeCancelModal() {
+    document.getElementById('cancelModal').classList.remove('active');
+  }
+
+  document.getElementById('cancelModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCancelModal();
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,467 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Choose Payment — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --sn-green: #2d7a4f;
+    --sn-green-light: #3a9962;
+    --sn-gold: #c9a84c;
+    --sn-dark: #0e1a12;
+    --sn-card: #ffffff;
+    --sn-border: #e2e8e4;
+    --sn-text: #1a2e22;
+    --sn-muted: #6b7f72;
+    --sn-bg: #f4f7f5;
+    --radius: 4px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+
+  .payment-page {
+    background: var(--sn-bg);
+    min-height: 100vh;
+    padding: 40px 0 60px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .payment-container {
+    width: 100%;
+    max-width: 640px;
+    padding: 0 20px;
+    margin: 0 auto;
+  }
+
+  /* Steps */
+  .checkout-steps {
+    display: flex;
+    align-items: center;
+    margin-bottom: 36px;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .step-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .step.done .step-num { background: var(--sn-green); color: #fff; }
+  .step.done .step-label { color: var(--sn-muted); }
+  .step.active .step-num { background: var(--sn-dark); color: #fff; }
+  .step.active .step-label { color: var(--sn-text); }
+  .step.inactive .step-num { background: #e2e8e4; color: var(--sn-muted); }
+  .step.inactive .step-label { color: var(--sn-muted); }
+
+  .step-connector {
+    flex: 1;
+    height: 1px;
+    background: var(--sn-border);
+    margin: 0 12px;
+    max-width: 60px;
+  }
+
+  /* Hero Card */
+  .payment-hero {
+    background: var(--sn-dark);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 28px 28px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .payment-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: rgba(45,122,79,0.12);
+    pointer-events: none;
+  }
+
+  .payment-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--sn-green-light);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .payment-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 4vw, 2.1rem);
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 20px;
+    letter-spacing: 0.02em;
+  }
+
+  .order-mini {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .order-mini-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 4px;
+  }
+
+  .order-mini-value {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+
+  .order-mini-total {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    color: #fff;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .order-mini-currency {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+    margin-right: 4px;
+  }
+
+  /* Body */
+  .payment-body {
+    background: var(--sn-card);
+    border: 1px solid var(--sn-border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  /* Items preview */
+  .items-preview {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--sn-border);
+    background: #fafcfa;
+  }
+
+  .items-preview-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--sn-muted);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .item-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: var(--sn-text);
+    padding: 4px 0;
+  }
+
+  .item-line-qty { color: var(--sn-muted); margin-left: 4px; }
+  .item-line-price { font-weight: 600; }
+
+  /* Methods */
+  .methods-section {
+    padding: 24px 28px;
+  }
+
+  .methods-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--sn-muted);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .payment-method-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1.5px solid var(--sn-border);
+    border-radius: var(--radius);
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .payment-method-btn::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background 0.2s;
+  }
+
+  .payment-method-btn:hover {
+    border-color: var(--sn-green);
+    box-shadow: 0 4px 16px rgba(45,122,79,0.12);
+    transform: translateY(-1px);
+  }
+
+  .payment-method-btn:hover::before { background: var(--sn-green); }
+
+  .payment-method-btn.cod-btn:hover { border-color: var(--sn-dark); }
+  .payment-method-btn.cod-btn:hover::before { background: var(--sn-dark); }
+
+  .method-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .icon-stripe { background: #ede9fe; }
+  .icon-esewa  { background: #e8f5e9; }
+  .icon-cod    { background: #f0f4f1; }
+
+  .method-text { flex: 1; }
+
+  .method-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--sn-text);
+    margin-bottom: 3px;
+  }
+
+  .method-desc {
+    font-size: 0.75rem;
+    color: var(--sn-muted);
+    line-height: 1.4;
+  }
+
+  .method-arrow {
+    color: var(--sn-muted);
+    font-size: 1.1rem;
+    transition: transform 0.2s, color 0.2s;
+  }
+
+  .payment-method-btn:hover .method-arrow {
+    transform: translateX(4px);
+    color: var(--sn-green);
+  }
+
+  .method-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--sn-muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin: 4px 0 10px;
+  }
+
+  .method-divider::before,
+  .method-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--sn-border);
+  }
+
+  /* Footer */
+  .payment-footer {
+    padding: 16px 28px 24px;
+    border-top: 1px solid var(--sn-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .back-link {
+    font-size: 0.75rem;
+    color: var(--sn-muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover { color: var(--sn-text); }
+
+  .secure-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.65rem;
+    color: var(--sn-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .secure-badge svg { width: 11px; height: 11px; color: var(--sn-green); }
+
+  @media (max-width: 600px) {
+    .payment-hero, .methods-section, .items-preview { padding: 20px 16px; }
+    .payment-footer { padding: 14px 16px 20px; }
+    .order-mini { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="payment-page">
+  <div class="payment-container">
+
+    <!-- Steps -->
+    <div class="checkout-steps">
+      <div class="step done">
+        <div class="step-num">✓</div>
+        <span class="step-label">Details</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step active">
+        <div class="step-num">2</div>
+        <span class="step-label">Payment</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step inactive">
+        <div class="step-num">3</div>
+        <span class="step-label">Confirmation</span>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="payment-hero">
+      <p class="payment-eyebrow">Step 2 of 2</p>
+      <h1 class="payment-title">Choose Payment Method</h1>
+      <div class="order-mini">
+        <div>
+          <p class="order-mini-label">Order for</p>
+          <p class="order-mini-value">{{ order.full_name }}</p>
+        </div>
+        <div style="text-align:right;">
+          <p class="order-mini-label">Total</p>
+          <p class="order-mini-total">
+            <span class="order-mini-currency">NPR</span>{{ order.total }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="payment-body">
+
+      <!-- Items -->
+      <div class="items-preview">
+        <p class="items-preview-label">{{ order.items.count }} item{{ order.items.count|pluralize }} in order</p>
+        {% for item in order.items.all %}
+        <div class="item-line">
+          <span>{{ item.product_name }}<span class="item-line-qty">× {{ item.quantity }}</span></span>
+          <span class="item-line-price">NPR {{ item.total_price }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Methods -->
+      <div class="methods-section">
+        <p class="methods-label">Select a payment method</p>
+
+        <!-- Stripe -->
+        <a href="{% url 'orders:stripe_checkout' order_number=order.order_number %}"
+           class="payment-method-btn">
+          <div class="method-icon icon-stripe">💳</div>
+          <div class="method-text">
+            <p class="method-name">Pay with Stripe</p>
+            <p class="method-desc">Credit / Debit card — Visa, Mastercard, Amex</p>
+          </div>
+          <span class="method-arrow">→</span>
+        </a>
+
+        <div class="method-divider">or</div>
+
+        <!-- eSewa -->
+        <a href="{% url 'orders:esewa_checkout' order_number=order.order_number %}"
+           class="payment-method-btn">
+          <div class="method-icon icon-esewa">⊕</div>
+          <div class="method-text">
+            <p class="method-name">Pay with eSewa</p>
+            <p class="method-desc">Nepal's most popular digital wallet</p>
+          </div>
+          <span class="method-arrow">→</span>
+        </a>
+
+        <div class="method-divider">or</div>
+
+        <!-- COD -->
+        <form method="POST" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit" name="payment_method" value="cod"
+                  class="payment-method-btn cod-btn">
+            <div class="method-icon icon-cod">◎</div>
+            <div class="method-text">
+              <p class="method-name">Cash on Delivery</p>
+              <p class="method-desc">Pay NPR {{ order.total }} when your order arrives</p>
+            </div>
+            <span class="method-arrow">→</span>
+          </button>
+        </form>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="payment-footer">
+        <a href="{% url 'cart:detail' %}" class="back-link">
+          ← Back to Cart
+        </a>
+        <span class="secure-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          All payments secure & encrypted
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,338 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Failed — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --sn-green: #2d7a4f;
+    --sn-green-light: #3a9962;
+    --sn-dark: #0e1a12;
+    --sn-card: #ffffff;
+    --sn-border: #e2e8e4;
+    --sn-text: #1a2e22;
+    --sn-muted: #6b7f72;
+    --sn-bg: #f4f7f5;
+    --sn-error: #c0392b;
+    --sn-stripe: #635bff;
+    --radius: 4px;
+    --shadow: 0 2px 20px rgba(0,0,0,0.09);
+  }
+
+  .failure-page {
+    background: var(--sn-bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px 60px;
+  }
+
+  .failure-card {
+    max-width: 520px;
+    width: 100%;
+    background: var(--sn-card);
+    border: 1px solid var(--sn-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: fadeSlideUp 0.5s ease both;
+  }
+
+  .failure-bar {
+    height: 4px;
+    background: var(--sn-error);
+  }
+
+  .failure-body {
+    padding: 40px 36px;
+    text-align: center;
+  }
+
+  .failure-icon-ring {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    border: 2.5px solid var(--sn-error);
+    background: rgba(192,57,43,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 22px;
+    font-size: 1.6rem;
+    animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .failure-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    font-weight: 500;
+    color: var(--sn-dark);
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+    animation: fadeSlideUp 0.5s ease 0.1s both;
+  }
+
+  .failure-subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sn-muted);
+    margin-bottom: 28px;
+    animation: fadeSlideUp 0.5s ease 0.15s both;
+  }
+
+  .failure-divider {
+    width: 36px;
+    height: 2px;
+    background: var(--sn-border);
+    margin: 0 auto 24px;
+  }
+
+  .failure-message {
+    font-size: 0.875rem;
+    color: var(--sn-muted);
+    line-height: 1.8;
+    margin-bottom: 24px;
+    animation: fadeSlideUp 0.5s ease 0.2s both;
+  }
+
+  .failure-reasons {
+    text-align: left;
+    background: #fdf4f4;
+    border: 1px solid #f5c6c6;
+    border-left: 3px solid var(--sn-error);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 28px;
+    animation: fadeSlideUp 0.5s ease 0.25s both;
+  }
+
+  .reasons-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--sn-error);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .reasons-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .reasons-list li {
+    font-size: 0.82rem;
+    color: var(--sn-muted);
+    line-height: 1.8;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .reasons-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: #e0aaaa;
+  }
+
+  /* Actions */
+  .failure-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeSlideUp 0.5s ease 0.3s both;
+  }
+
+  .btn-retry {
+    padding: 14px 20px;
+    background: var(--sn-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .btn-retry:hover {
+    background: var(--sn-green);
+    transform: translateY(-1px);
+  }
+
+  .btn-retry-stripe {
+    padding: 14px 20px;
+    background: var(--sn-stripe);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+
+  .btn-retry-stripe:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .btn-ghost {
+    padding: 13px 20px;
+    background: transparent;
+    color: var(--sn-text);
+    border: 1.5px solid var(--sn-border);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--sn-green);
+    color: var(--sn-green);
+  }
+
+  /* Footer */
+  .failure-footer {
+    padding: 16px 36px;
+    border-top: 1px solid var(--sn-border);
+    background: #fafcfa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.65rem;
+    color: var(--sn-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .failure-footer svg { width: 11px; height: 11px; color: var(--sn-green); }
+
+  @keyframes scaleIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  @keyframes fadeSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  @media (max-width: 540px) {
+    .failure-body { padding: 28px 20px; }
+    .failure-footer { padding: 14px 20px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="failure-page">
+  <div class="failure-card">
+    <div class="failure-bar"></div>
+
+    <div class="failure-body">
+
+      <div class="failure-icon-ring">✕</div>
+
+      {% if order and order.payment_method == 'stripe' %}
+        <h1 class="failure-title">Payment Cancelled</h1>
+        <p class="failure-subtitle">Stripe Transaction Not Completed</p>
+      {% elif order and order.payment_method == 'esewa' %}
+        <h1 class="failure-title">Payment Failed</h1>
+        <p class="failure-subtitle">eSewa Transaction Unsuccessful</p>
+      {% else %}
+        <h1 class="failure-title">Payment Failed</h1>
+        <p class="failure-subtitle">Transaction Could Not Be Completed</p>
+      {% endif %}
+
+      <div class="failure-divider"></div>
+
+      <p class="failure-message">
+        We were unable to process your payment. Your order has not been placed and you have not been charged.
+      </p>
+
+      <div class="failure-reasons">
+        <p class="reasons-label">Possible reasons</p>
+        {% if order and order.payment_method == 'stripe' %}
+        <ul class="reasons-list">
+          <li>You closed or navigated away from the payment page</li>
+          <li>Your card was declined by your bank</li>
+          <li>The session expired before payment completed</li>
+          <li>A temporary issue with Stripe's gateway</li>
+        </ul>
+        {% else %}
+        <ul class="reasons-list">
+          <li>Insufficient balance in your eSewa account</li>
+          <li>Payment was cancelled or timed out</li>
+          <li>Incorrect eSewa credentials entered</li>
+          <li>A temporary issue with the payment gateway</li>
+        </ul>
+        {% endif %}
+      </div>
+
+      <div class="failure-actions">
+        {% if order %}
+          {% if order.payment_method == 'stripe' %}
+          <a href="{% url 'orders:stripe_checkout' order_number=order.order_number %}"
+             class="btn-retry-stripe">
+            Retry with Stripe
+          </a>
+          <a href="{% url 'orders:payment_selection' order_number=order.order_number %}"
+             class="btn-ghost">
+            Choose Different Payment
+          </a>
+          {% elif order.payment_method == 'esewa' %}
+          <a href="{% url 'orders:esewa_checkout' order_number=order.order_number %}"
+             class="btn-retry">
+            Retry with eSewa
+          </a>
+          <a href="{% url 'orders:payment_selection' order_number=order.order_number %}"
+             class="btn-ghost">
+            Choose Different Payment
+          </a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'orders:checkout' %}" class="btn-retry">
+            Try Again
+          </a>
+        {% endif %}
+
+        <a href="{% url 'products:list' %}" class="btn-ghost">
+          Continue Shopping
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'orders:list' %}" class="btn-ghost">
+          View My Orders
+        </a>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="failure-footer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      Need help? Contact our support team
+    </div>
+
+  </div>
+</section>
+{% endblock %}
