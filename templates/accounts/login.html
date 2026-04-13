@@ -1,0 +1,521 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Sign In — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ══════════════════════════════════════════════
+       LOGIN PAGE
+    ══════════════════════════════════════════════ */
+
+    .auth-section {
+        min-height: calc(100vh - var(--nav-h) - 40px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 16px;
+        position: relative;
+    }
+
+    /* Subtle radial glow behind the card */
+    .auth-section::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(ellipse at center,
+            rgba(201,168,76,0.06) 0%,
+            rgba(29,122,68,0.04) 40%,
+            transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .auth-card {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 460px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    /* Gold top accent strip */
+    .auth-card-accent {
+        height: 3px;
+        background: linear-gradient(90deg,
+            var(--green) 0%,
+            var(--gold) 50%,
+            var(--green) 100%);
+    }
+
+    .auth-card-body {
+        padding: 40px 40px 36px;
+    }
+
+    /* Header */
+    .auth-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .auth-icon {
+        width: 52px;
+        height: 52px;
+        background: var(--gold-dim);
+        border: 1px solid rgba(201,168,76,0.25);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        margin: 0 auto 16px;
+        box-shadow: 0 0 24px rgba(201,168,76,0.12);
+    }
+
+    .auth-title {
+        font-family: var(--font-display);
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--white);
+        letter-spacing: -0.01em;
+        margin-bottom: 6px;
+    }
+
+    .auth-title em {
+        font-style: italic;
+        color: var(--gold-light);
+    }
+
+    .auth-subtitle {
+        font-size: 13.5px;
+        color: var(--white-dim);
+        line-height: 1.5;
+    }
+
+    /* Form fields */
+    .form-field {
+        margin-bottom: 18px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--white-dim);
+        margin-bottom: 8px;
+    }
+
+    .form-field input[type="text"],
+    .form-field input[type="password"],
+    .form-field input[type="email"] {
+        width: 100%;
+        padding: 12px 16px;
+        background: var(--deep);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--white);
+        font-family: var(--font-body);
+        font-size: 14px;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+        -webkit-appearance: none;
+    }
+
+    .form-field input:hover {
+        border-color: var(--border-hover);
+        background: var(--off-black);
+    }
+
+    .form-field input:focus {
+        border-color: var(--gold);
+        background: var(--off-black);
+        box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+    }
+
+    /* Autofill override */
+    .form-field input:-webkit-autofill,
+    .form-field input:-webkit-autofill:hover,
+    .form-field input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px var(--off-black) inset;
+        -webkit-text-fill-color: var(--white);
+        border-color: var(--border-hover);
+        transition: background-color 9999s ease-in-out 0s;
+    }
+
+    /* Django form errors */
+    .errorlist {
+        list-style: none;
+        margin-top: 6px;
+    }
+    .errorlist li {
+        font-size: 12px;
+        color: #ff8080;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .errorlist li::before {
+        content: '✕';
+        font-size: 10px;
+    }
+
+    /* Non-field errors */
+    .auth-errors {
+        background: rgba(192,57,43,0.12);
+        border: 1px solid rgba(192,57,43,0.3);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        margin-bottom: 20px;
+    }
+    .auth-errors p,
+    .auth-errors li {
+        font-size: 13px;
+        color: #ff8080;
+        line-height: 1.5;
+    }
+
+    /* Password row with show/hide toggle */
+    .password-wrap {
+        position: relative;
+    }
+    .password-wrap input {
+        padding-right: 46px;
+    }
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--white-dim);
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color var(--transition);
+        line-height: 1;
+    }
+    .password-toggle:hover { color: var(--white); }
+    .password-toggle svg { width: 16px; height: 16px; }
+
+    /* Forgot password */
+    .form-field-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    .forgot-link {
+        font-size: 12px;
+        color: var(--gold);
+        opacity: 0.8;
+        transition: opacity var(--transition);
+    }
+    .forgot-link:hover { opacity: 1; }
+
+    /* Submit button */
+    .btn-auth {
+        width: 100%;
+        padding: 13px 24px;
+        background: var(--gold);
+        color: var(--black);
+        border: none;
+        border-radius: var(--radius-pill);
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .btn-auth:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-gold);
+    }
+    .btn-auth:active {
+        transform: translateY(0);
+    }
+
+    /* Divider */
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin: 24px 0;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+    }
+    .auth-divider span {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.2);
+    }
+
+    /* Google button */
+    .btn-google {
+        width: 100%;
+        padding: 11px 20px;
+        background: var(--deep);
+        color: var(--white);
+        border: 1px solid var(--border-hover);
+        border-radius: var(--radius-pill);
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-decoration: none;
+        transition: background var(--transition), border-color var(--transition), transform var(--transition);
+    }
+    .btn-google:hover {
+        background: var(--surface-2);
+        border-color: rgba(255,255,255,0.3);
+        transform: translateY(-1px);
+    }
+    .btn-google svg {
+        flex-shrink: 0;
+    }
+
+    /* Footer links */
+    .auth-footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+    }
+    .auth-footer-links p {
+        font-size: 13px;
+        color: var(--white-dim);
+    }
+    .auth-footer-links a {
+        color: var(--gold);
+        font-weight: 500;
+        transition: color var(--transition);
+    }
+    .auth-footer-links a:hover {
+        color: var(--gold-light);
+    }
+
+    /* Trust badges row */
+    .auth-trust {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        flex-wrap: wrap;
+    }
+    .auth-trust-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        color: rgba(255,255,255,0.25);
+        letter-spacing: 0.06em;
+    }
+    .auth-trust-item span:first-child {
+        font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+        .auth-card-body { padding: 28px 24px 24px; }
+        .auth-title { font-size: 24px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-card">
+
+        <!-- Gold accent strip at top -->
+        <div class="auth-card-accent"></div>
+
+        <div class="auth-card-body">
+
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-icon">🎱</div>
+                <h1 class="auth-title">Welcome <em>back</em></h1>
+                <p class="auth-subtitle">Sign in to your Snooker Nepal account</p>
+            </div>
+
+            <!-- Non-field form errors -->
+            {% if form.non_field_errors %}
+            <div class="auth-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Login form -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <!-- Username -->
+                <div class="form-field">
+                    <label class="form-label" for="{{ form.username.id_for_label }}">
+                        Username
+                    </label>
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </div>
+
+                <!-- Password -->
+                <div class="form-field">
+                    <div class="form-field-meta">
+                        <label class="form-label" for="{{ form.password.id_for_label }}" style="margin-bottom: 0;">
+                            Password
+                        </label>
+                        <a href="{% url 'accounts:password_reset' %}" class="forgot-link">Forgot password?</a>
+                    </div>
+                    <div class="password-wrap">
+                        {{ form.password }}
+                        <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password">
+                            <!-- Eye icon (show) -->
+                            <svg id="eyeShow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <!-- Eye-off icon (hide) — hidden by default -->
+                            <svg id="eyeHide" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
+                    {{ form.password.errors }}
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-auth">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        <polyline points="10 17 15 12 10 7"/>
+                        <line x1="15" y1="12" x2="3" y2="12"/>
+                    </svg>
+                    Sign In
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider"><span>or continue with</span></div>
+
+            <!-- Google OAuth -->
+            <a href="{% provider_login_url 'google' %}" class="btn-google">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="18" height="18">
+                    <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.86l6.09-6.09C34.46 3.08 29.53 1 24 1 14.82 1 7.07 6.48 3.64 14.22l7.1 5.52C12.4 13.72 17.73 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.5 24.5c0-1.64-.15-3.22-.42-4.75H24v9h12.68c-.55 2.97-2.22 5.48-4.73 7.17l7.27 5.65C43.18 37.54 46.5 31.5 46.5 24.5z"/>
+                    <path fill="#FBBC05" d="M10.74 28.26A14.57 14.57 0 0 1 9.5 24c0-1.49.26-2.93.74-4.26l-7.1-5.52A23.9 23.9 0 0 0 1 24c0 3.87.93 7.53 2.64 10.78l7.1-5.52z"/>
+                    <path fill="#34A853" d="M24 47c5.53 0 10.17-1.84 13.56-4.99l-7.27-5.65C28.44 37.6 26.33 38.5 24 38.5c-6.27 0-11.6-4.22-13.26-9.94l-7.1 5.52C7.07 41.52 14.82 47 24 47z"/>
+                </svg>
+                Continue with Google
+            </a>
+
+            <!-- Register + trust row -->
+            <div class="auth-footer-links">
+                <p>
+                    Don't have an account?
+                    <a href="{% url 'accounts:register' %}">Create one — it's free</a>
+                </p>
+            </div>
+
+            <!-- Trust badges -->
+            <div class="auth-trust">
+                <div class="auth-trust-item"><span>🔒</span><span>Secure Login</span></div>
+                <div class="auth-trust-item"><span>🇳🇵</span><span>Nepal's #1</span></div>
+                <div class="auth-trust-item"><span>✓</span><span>Verified Store</span></div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ── Style Django's auto-generated input fields
+    // (Django renders raw <input> tags — we apply our classes here)
+    document.querySelectorAll('.form-field input').forEach(input => {
+        input.style.cssText = `
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--white);
+            font-family: var(--font-body);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+            box-sizing: border-box;
+        `;
+        input.addEventListener('focus', () => {
+            input.style.borderColor = 'var(--gold)';
+            input.style.background   = 'var(--off-black)';
+            input.style.boxShadow    = '0 0 0 3px rgba(201,168,76,0.1)';
+        });
+        input.addEventListener('blur', () => {
+            input.style.borderColor = 'var(--border)';
+            input.style.background   = 'var(--deep)';
+            input.style.boxShadow    = 'none';
+        });
+    });
+
+    // ── Password show / hide toggle
+    const toggleBtn = document.getElementById('togglePassword');
+    const pwInput   = document.querySelector('input[name="password"]');
+    const eyeShow   = document.getElementById('eyeShow');
+    const eyeHide   = document.getElementById('eyeHide');
+
+    if (toggleBtn && pwInput) {
+        toggleBtn.addEventListener('click', () => {
+            const isHidden = pwInput.type === 'password';
+            pwInput.type    = isHidden ? 'text' : 'password';
+            eyeShow.style.display = isHidden ? 'none'  : 'block';
+            eyeHide.style.display = isHidden ? 'block' : 'none';
+            toggleBtn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+        });
+    }
+
+    // ── Auto-dismiss any Django messages after 4s
+    // (already handled in base.html — just here as a reminder)
+</script>
+{% endblock %}

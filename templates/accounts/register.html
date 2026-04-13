@@ -1,0 +1,762 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Create Account — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ══════════════════════════════════════════════
+       REGISTER PAGE
+    ══════════════════════════════════════════════ */
+
+    .auth-section {
+        min-height: calc(100vh - var(--nav-h) - 40px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 16px;
+        position: relative;
+    }
+
+    /* Subtle radial glow */
+    .auth-section::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(ellipse at center,
+            rgba(29,122,68,0.07) 0%,
+            rgba(201,168,76,0.04) 40%,
+            transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .auth-card {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 520px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    /* Green → Gold accent strip */
+    .auth-card-accent {
+        height: 3px;
+        background: linear-gradient(90deg,
+            var(--green) 0%,
+            var(--gold) 50%,
+            var(--green) 100%);
+    }
+
+    .auth-card-body {
+        padding: 40px 40px 36px;
+    }
+
+    /* ── Header ── */
+    .auth-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .auth-icon {
+        width: 52px;
+        height: 52px;
+        background: var(--gold-dim);
+        border: 1px solid rgba(201,168,76,0.25);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        margin: 0 auto 16px;
+        box-shadow: 0 0 24px rgba(201,168,76,0.12);
+    }
+
+    .auth-title {
+        font-family: var(--font-display);
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--white);
+        letter-spacing: -0.01em;
+        margin-bottom: 6px;
+    }
+    .auth-title em {
+        font-style: italic;
+        color: var(--gold-light);
+    }
+
+    .auth-subtitle {
+        font-size: 13.5px;
+        color: var(--white-dim);
+        line-height: 1.5;
+    }
+
+    /* ── Steps indicator ── */
+    .auth-steps {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        margin-bottom: 28px;
+    }
+    .auth-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        position: relative;
+    }
+    .auth-step-dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1.5px solid var(--border-hover);
+        background: var(--deep);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(255,255,255,0.3);
+        font-family: var(--font-mono);
+        transition: all var(--transition);
+    }
+    .auth-step.active .auth-step-dot {
+        background: var(--gold-dim);
+        border-color: var(--gold);
+        color: var(--gold-light);
+        box-shadow: 0 0 12px rgba(201,168,76,0.2);
+    }
+    .auth-step.done .auth-step-dot {
+        background: rgba(29,122,68,0.3);
+        border-color: var(--green-felt);
+        color: #6ee8a2;
+    }
+    .auth-step-label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.25);
+    }
+    .auth-step.active .auth-step-label { color: var(--gold); }
+    .auth-step.done  .auth-step-label  { color: #6ee8a2; }
+    .auth-step-line {
+        width: 48px;
+        height: 1px;
+        background: var(--border);
+        margin: 0 4px;
+        margin-bottom: 18px;
+        flex-shrink: 0;
+    }
+
+    /* ── Form fields ── */
+    .form-field {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--white-dim);
+        margin-bottom: 7px;
+    }
+
+    .form-field input[type="text"],
+    .form-field input[type="password"],
+    .form-field input[type="email"] {
+        width: 100%;
+        padding: 11px 16px;
+        background: var(--deep);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--white);
+        font-family: var(--font-body);
+        font-size: 14px;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+        -webkit-appearance: none;
+        box-sizing: border-box;
+    }
+    .form-field input:hover {
+        border-color: var(--border-hover);
+        background: var(--off-black);
+    }
+    .form-field input:focus {
+        border-color: var(--gold);
+        background: var(--off-black);
+        box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+    }
+
+    /* Autofill override */
+    .form-field input:-webkit-autofill,
+    .form-field input:-webkit-autofill:hover,
+    .form-field input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px var(--off-black) inset;
+        -webkit-text-fill-color: var(--white);
+        border-color: var(--border-hover);
+        transition: background-color 9999s ease-in-out 0s;
+    }
+
+    /* Two-column grid for first/last name */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    /* Django error list */
+    .errorlist {
+        list-style: none;
+        margin-top: 5px;
+    }
+    .errorlist li {
+        font-size: 12px;
+        color: #ff8080;
+        display: flex;
+        align-items: flex-start;
+        gap: 5px;
+        line-height: 1.4;
+    }
+    .errorlist li::before {
+        content: '✕';
+        font-size: 10px;
+        margin-top: 1px;
+        flex-shrink: 0;
+    }
+
+    /* Non-field errors */
+    .auth-errors {
+        background: rgba(192,57,43,0.12);
+        border: 1px solid rgba(192,57,43,0.3);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        margin-bottom: 20px;
+    }
+    .auth-errors p,
+    .auth-errors li {
+        font-size: 13px;
+        color: #ff8080;
+        line-height: 1.5;
+    }
+
+    /* Password hint */
+    .password-hint {
+        font-size: 11.5px;
+        color: rgba(255,255,255,0.25);
+        margin-top: 6px;
+        line-height: 1.5;
+    }
+
+    /* Password strength bar */
+    .strength-bar-wrap {
+        margin-top: 8px;
+        display: none;
+    }
+    .strength-bar-track {
+        height: 3px;
+        background: var(--border);
+        border-radius: 99px;
+        overflow: hidden;
+    }
+    .strength-bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        width: 0%;
+        transition: width 0.3s ease, background 0.3s ease;
+    }
+    .strength-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        margin-top: 4px;
+        color: rgba(255,255,255,0.3);
+    }
+
+    /* Password show/hide toggle */
+    .password-wrap {
+        position: relative;
+    }
+    .password-wrap input {
+        padding-right: 46px;
+    }
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--white-dim);
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        transition: color var(--transition);
+    }
+    .password-toggle:hover { color: var(--white); }
+    .password-toggle svg { width: 15px; height: 15px; }
+
+    /* Terms checkbox */
+    .terms-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin: 20px 0 4px;
+    }
+    .terms-row input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--gold);
+        cursor: pointer;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+    .terms-row label {
+        font-size: 12.5px;
+        color: var(--white-dim);
+        line-height: 1.5;
+        cursor: pointer;
+    }
+    .terms-row a {
+        color: var(--gold);
+        transition: color var(--transition);
+    }
+    .terms-row a:hover { color: var(--gold-light); }
+
+    /* Submit button */
+    .btn-auth {
+        width: 100%;
+        padding: 13px 24px;
+        background: var(--gold);
+        color: var(--black);
+        border: none;
+        border-radius: var(--radius-pill);
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+        margin-top: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .btn-auth:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-gold);
+    }
+    .btn-auth:active { transform: translateY(0); }
+    .btn-auth:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* OR divider */
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin: 22px 0;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+    }
+    .auth-divider span {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.2);
+    }
+
+    /* Google button */
+    .btn-google {
+        width: 100%;
+        padding: 11px 20px;
+        background: var(--deep);
+        color: var(--white);
+        border: 1px solid var(--border-hover);
+        border-radius: var(--radius-pill);
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-decoration: none;
+        transition: background var(--transition), border-color var(--transition), transform var(--transition);
+    }
+    .btn-google:hover {
+        background: var(--surface-2);
+        border-color: rgba(255,255,255,0.3);
+        transform: translateY(-1px);
+    }
+
+    /* Footer links */
+    .auth-footer-links {
+        text-align: center;
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid var(--border);
+        font-size: 13px;
+        color: var(--white-dim);
+    }
+    .auth-footer-links a {
+        color: var(--gold);
+        font-weight: 500;
+        transition: color var(--transition);
+    }
+    .auth-footer-links a:hover { color: var(--gold-light); }
+
+    /* Perks row */
+    .auth-perks {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 24px;
+        padding-top: 22px;
+        border-top: 1px solid var(--border);
+    }
+    .auth-perk {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        text-align: center;
+        padding: 10px 8px;
+        background: var(--deep);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+    }
+    .auth-perk-icon { font-size: 16px; }
+    .auth-perk-text {
+        font-size: 10.5px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.3);
+        letter-spacing: 0.04em;
+        line-height: 1.4;
+    }
+
+    /* Responsive */
+    @media (max-width: 540px) {
+        .auth-card-body { padding: 28px 20px 24px; }
+        .auth-title { font-size: 24px; }
+        .form-row { grid-template-columns: 1fr; gap: 16px; }
+        .auth-perks { grid-template-columns: 1fr; }
+        .auth-steps { gap: 0; }
+        .auth-step-line { width: 28px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-card">
+
+        <!-- Accent strip -->
+        <div class="auth-card-accent"></div>
+
+        <div class="auth-card-body">
+
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-icon">🎱</div>
+                <h1 class="auth-title">Join <em>Snooker Nepal</em></h1>
+                <p class="auth-subtitle">Create your free account and start shopping</p>
+            </div>
+
+            <!-- Steps indicator -->
+            <div class="auth-steps">
+                <div class="auth-step active">
+                    <div class="auth-step-dot">1</div>
+                    <span class="auth-step-label">Account</span>
+                </div>
+                <div class="auth-step-line"></div>
+                <div class="auth-step">
+                    <div class="auth-step-dot">2</div>
+                    <span class="auth-step-label">Verify</span>
+                </div>
+                <div class="auth-step-line"></div>
+                <div class="auth-step">
+                    <div class="auth-step-dot">3</div>
+                    <span class="auth-step-label">Shop</span>
+                </div>
+            </div>
+
+            <!-- Non-field errors -->
+            {% if form.non_field_errors %}
+            <div class="auth-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Registration form -->
+            <form method="post" novalidate id="registerForm">
+                {% csrf_token %}
+
+                <!-- Username -->
+                <div class="form-field">
+                    <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </div>
+
+                <!-- First name + Last name -->
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="form-label" for="{{ form.first_name.id_for_label }}">First Name</label>
+                        {{ form.first_name }}
+                        {{ form.first_name.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label" for="{{ form.last_name.id_for_label }}">Last Name</label>
+                        {{ form.last_name }}
+                        {{ form.last_name.errors }}
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-field">
+                    <label class="form-label" for="{{ form.email.id_for_label }}">Email Address</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+
+                <!-- Password 1 -->
+                <div class="form-field">
+                    <label class="form-label" for="{{ form.password1.id_for_label }}">Password</label>
+                    <div class="password-wrap">
+                        {{ form.password1 }}
+                        <button type="button" class="password-toggle" id="togglePw1" aria-label="Show password">
+                            <svg id="eye1Show" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg id="eye1Hide" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Password strength indicator -->
+                    <div class="strength-bar-wrap" id="strengthWrap">
+                        <div class="strength-bar-track">
+                            <div class="strength-bar-fill" id="strengthBar"></div>
+                        </div>
+                        <div class="strength-label" id="strengthLabel">Strength</div>
+                    </div>
+                    <p class="password-hint">Min 8 characters. Mix letters, numbers and symbols for a stronger password.</p>
+                    {{ form.password1.errors }}
+                </div>
+
+                <!-- Password 2 -->
+                <div class="form-field">
+                    <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                    <div class="password-wrap">
+                        {{ form.password2 }}
+                        <button type="button" class="password-toggle" id="togglePw2" aria-label="Show password">
+                            <svg id="eye2Show" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg id="eye2Hide" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
+                    {{ form.password2.errors }}
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-auth" id="submitBtn">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <line x1="19" y1="8" x2="19" y2="14"/>
+                        <line x1="22" y1="11" x2="16" y2="11"/>
+                    </svg>
+                    Create My Account
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider"><span>or sign up with</span></div>
+
+            <!-- Google OAuth -->
+            <a href="{% provider_login_url 'google' %}" class="btn-google">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="18" height="18">
+                    <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.86l6.09-6.09C34.46 3.08 29.53 1 24 1 14.82 1 7.07 6.48 3.64 14.22l7.1 5.52C12.4 13.72 17.73 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.5 24.5c0-1.64-.15-3.22-.42-4.75H24v9h12.68c-.55 2.97-2.22 5.48-4.73 7.17l7.27 5.65C43.18 37.54 46.5 31.5 46.5 24.5z"/>
+                    <path fill="#FBBC05" d="M10.74 28.26A14.57 14.57 0 0 1 9.5 24c0-1.49.26-2.93.74-4.26l-7.1-5.52A23.9 23.9 0 0 0 1 24c0 3.87.93 7.53 2.64 10.78l7.1-5.52z"/>
+                    <path fill="#34A853" d="M24 47c5.53 0 10.17-1.84 13.56-4.99l-7.27-5.65C28.44 37.6 26.33 38.5 24 38.5c-6.27 0-11.6-4.22-13.26-9.94l-7.1 5.52C7.07 41.52 14.82 47 24 47z"/>
+                </svg>
+                Continue with Google
+            </a>
+
+            <!-- Already have account -->
+            <div class="auth-footer-links">
+                Already have an account?
+                <a href="{% url 'accounts:login' %}">Sign in here</a>
+            </div>
+
+            <!-- Perks -->
+            <div class="auth-perks">
+                <div class="auth-perk">
+                    <span class="auth-perk-icon">🚚</span>
+                    <span class="auth-perk-text">Free delivery above NPR 5,000</span>
+                </div>
+                <div class="auth-perk">
+                    <span class="auth-perk-icon">📦</span>
+                    <span class="auth-perk-text">Track your orders live</span>
+                </div>
+                <div class="auth-perk">
+                    <span class="auth-perk-icon">🔒</span>
+                    <span class="auth-perk-text">Secure & private account</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ── Style all Django-rendered inputs
+    document.querySelectorAll('.form-field input').forEach(input => {
+        input.style.cssText = `
+            width: 100%;
+            padding: 11px 16px;
+            background: var(--deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--white);
+            font-family: var(--font-body);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+        `;
+        input.addEventListener('focus', () => {
+            input.style.borderColor = 'var(--gold)';
+            input.style.background   = 'var(--off-black)';
+            input.style.boxShadow    = '0 0 0 3px rgba(201,168,76,0.1)';
+        });
+        input.addEventListener('blur', () => {
+            input.style.borderColor = 'var(--border)';
+            input.style.background   = 'var(--deep)';
+            input.style.boxShadow    = 'none';
+        });
+    });
+
+    // ── Fix padding on password inputs (room for toggle button)
+    ['password1', 'password2'].forEach(name => {
+        const el = document.querySelector(`input[name="${name}"]`);
+        if (el) el.style.paddingRight = '46px';
+    });
+
+    // ── Password toggle helper
+    function setupToggle(btnId, showId, hideId, inputName) {
+        const btn   = document.getElementById(btnId);
+        const show  = document.getElementById(showId);
+        const hide  = document.getElementById(hideId);
+        const input = document.querySelector(`input[name="${inputName}"]`);
+        if (!btn || !input) return;
+        btn.addEventListener('click', () => {
+            const hidden = input.type === 'password';
+            input.type        = hidden ? 'text' : 'password';
+            show.style.display = hidden ? 'none'  : 'block';
+            hide.style.display = hidden ? 'block' : 'none';
+            btn.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+        });
+    }
+    setupToggle('togglePw1', 'eye1Show', 'eye1Hide', 'password1');
+    setupToggle('togglePw2', 'eye2Show', 'eye2Hide', 'password2');
+
+    // ── Password strength meter
+    const pw1Input      = document.querySelector('input[name="password1"]');
+    const strengthWrap  = document.getElementById('strengthWrap');
+    const strengthBar   = document.getElementById('strengthBar');
+    const strengthLabel = document.getElementById('strengthLabel');
+
+    function getStrength(pw) {
+        let score = 0;
+        if (pw.length >= 8)  score++;
+        if (pw.length >= 12) score++;
+        if (/[A-Z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (/[^A-Za-z0-9]/.test(pw)) score++;
+        return score;
+    }
+
+    const levels = [
+        { label: 'Too short',  color: '#ff4444', pct: '15%' },
+        { label: 'Weak',       color: '#ff7744', pct: '30%' },
+        { label: 'Fair',       color: '#ffaa00', pct: '50%' },
+        { label: 'Good',       color: '#aacc00', pct: '70%' },
+        { label: 'Strong',     color: '#44bb66', pct: '88%' },
+        { label: 'Very strong',color: '#22cc66', pct: '100%'},
+    ];
+
+    if (pw1Input) {
+        pw1Input.addEventListener('input', () => {
+            const val = pw1Input.value;
+            if (!val) {
+                strengthWrap.style.display = 'none';
+                return;
+            }
+            strengthWrap.style.display = 'block';
+            const score = Math.min(getStrength(val), 5);
+            const lvl   = levels[score];
+            strengthBar.style.width      = lvl.pct;
+            strengthBar.style.background = lvl.color;
+            strengthLabel.textContent    = lvl.label;
+            strengthLabel.style.color    = lvl.color;
+        });
+    }
+
+    // ── Prevent double-submit
+    document.getElementById('registerForm').addEventListener('submit', function() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled     = true;
+        btn.innerHTML    = `
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+                 style="animation: spin 0.8s linear infinite">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+            </svg>
+            Creating account…`;
+    });
+</script>
+
+<style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
