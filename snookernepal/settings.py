@@ -100,7 +100,7 @@ if 'DATABASE_URL' in os.environ:
         'default': dj_database_url.parse(
             os.environ.get('DATABASE_URL'),
             conn_max_age=600,
-            ssl_require=True
+            ssl_require=False
         )
     }
 else:
