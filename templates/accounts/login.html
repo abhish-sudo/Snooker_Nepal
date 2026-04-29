@@ -6,10 +6,6 @@
 
 {% block extra_css %}
 <style>
-    /* ══════════════════════════════════════════════
-       LOGIN PAGE
-    ══════════════════════════════════════════════ */
-
     .auth-section {
         min-height: calc(100vh - var(--nav-h) - 40px);
         display: flex;
@@ -19,7 +15,6 @@
         position: relative;
     }
 
-    /* Subtle radial glow behind the card */
     .auth-section::before {
         content: '';
         position: absolute;
@@ -48,7 +43,6 @@
         box-shadow: var(--shadow-lg);
     }
 
-    /* Gold top accent strip */
     .auth-card-accent {
         height: 3px;
         background: linear-gradient(90deg,
@@ -61,24 +55,31 @@
         padding: 40px 40px 36px;
     }
 
-    /* Header */
     .auth-header {
         text-align: center;
         margin-bottom: 32px;
     }
 
+    /* ── LOGO ICON: replaces the ball emoji ── */
     .auth-icon {
-        width: 52px;
-        height: 52px;
-        background: var(--gold-dim);
-        border: 1px solid rgba(201,168,76,0.25);
-        border-radius: 50%;
+        width: 72px;
+        height: 72px;
+        background: var(--surface-2);
+        border: 1px solid rgba(201,168,76,0.2);
+        border-radius: var(--radius-lg);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 22px;
         margin: 0 auto 16px;
-        box-shadow: 0 0 24px rgba(201,168,76,0.12);
+        box-shadow: 0 0 24px rgba(201,168,76,0.1);
+        overflow: hidden;
+        padding: 6px;
+    }
+    .auth-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
     }
 
     .auth-title {
@@ -89,7 +90,6 @@
         letter-spacing: -0.01em;
         margin-bottom: 6px;
     }
-
     .auth-title em {
         font-style: italic;
         color: var(--gold-light);
@@ -101,7 +101,7 @@
         line-height: 1.5;
     }
 
-    /* Form fields */
+    /* ── FORM FIELDS ── */
     .form-field {
         margin-bottom: 18px;
     }
@@ -143,21 +143,38 @@
         box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
     }
 
-    /* Autofill override */
+    /* ══════════════════════════════════════════════
+       AUTOFILL FIX
+       Browser autofill injects its own white/blue
+       background. We override it with a very long
+       transition delay so our dark color wins, AND
+       we set the text color explicitly.
+    ══════════════════════════════════════════════ */
     .form-field input:-webkit-autofill,
     .form-field input:-webkit-autofill:hover,
-    .form-field input:-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0 1000px var(--off-black) inset;
-        -webkit-text-fill-color: var(--white);
-        border-color: var(--border-hover);
-        transition: background-color 9999s ease-in-out 0s;
+    .form-field input:-webkit-autofill:focus,
+    .form-field input:-webkit-autofill:active,
+    .form-field input:autofill {
+        /* Trick: use an inset box-shadow to paint over the autofill bg */
+        -webkit-box-shadow: 0 0 0 1000px #161616 inset !important;
+        box-shadow: 0 0 0 1000px #161616 inset !important;
+        -webkit-text-fill-color: #f5f3ee !important;
+        caret-color: #f5f3ee !important;
+        border-color: var(--border-hover) !important;
+        /* Delay the background-color transition so our shadow paints first */
+        transition: background-color 99999s ease-in-out 0s,
+                    border-color 0.25s,
+                    box-shadow 0.25s !important;
     }
 
-    /* Django form errors */
-    .errorlist {
-        list-style: none;
-        margin-top: 6px;
+    /* Firefox autofill */
+    .form-field input:autofill {
+        background: #161616 !important;
+        color: #f5f3ee !important;
     }
+
+    /* Django errors */
+    .errorlist { list-style: none; margin-top: 6px; }
     .errorlist li {
         font-size: 12px;
         color: #ff8080;
@@ -165,12 +182,8 @@
         align-items: center;
         gap: 5px;
     }
-    .errorlist li::before {
-        content: '✕';
-        font-size: 10px;
-    }
+    .errorlist li::before { content: '✕'; font-size: 10px; }
 
-    /* Non-field errors */
     .auth-errors {
         background: rgba(192,57,43,0.12);
         border: 1px solid rgba(192,57,43,0.3);
@@ -179,19 +192,11 @@
         margin-bottom: 20px;
     }
     .auth-errors p,
-    .auth-errors li {
-        font-size: 13px;
-        color: #ff8080;
-        line-height: 1.5;
-    }
+    .auth-errors li { font-size: 13px; color: #ff8080; line-height: 1.5; }
 
-    /* Password row with show/hide toggle */
-    .password-wrap {
-        position: relative;
-    }
-    .password-wrap input {
-        padding-right: 46px;
-    }
+    /* Password toggle */
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 46px; }
     .password-toggle {
         position: absolute;
         right: 12px;
@@ -211,7 +216,6 @@
     .password-toggle:hover { color: var(--white); }
     .password-toggle svg { width: 16px; height: 16px; }
 
-    /* Forgot password */
     .form-field-meta {
         display: flex;
         align-items: center;
@@ -226,7 +230,7 @@
     }
     .forgot-link:hover { opacity: 1; }
 
-    /* Submit button */
+    /* Submit */
     .btn-auth {
         width: 100%;
         padding: 13px 24px;
@@ -252,9 +256,7 @@
         transform: translateY(-2px);
         box-shadow: var(--shadow-gold);
     }
-    .btn-auth:active {
-        transform: translateY(0);
-    }
+    .btn-auth:active { transform: translateY(0); }
 
     /* Divider */
     .auth-divider {
@@ -302,11 +304,9 @@
         border-color: rgba(255,255,255,0.3);
         transform: translateY(-1px);
     }
-    .btn-google svg {
-        flex-shrink: 0;
-    }
+    .btn-google svg { flex-shrink: 0; }
 
-    /* Footer links */
+    /* Footer */
     .auth-footer-links {
         display: flex;
         flex-direction: column;
@@ -316,20 +316,11 @@
         padding-top: 24px;
         border-top: 1px solid var(--border);
     }
-    .auth-footer-links p {
-        font-size: 13px;
-        color: var(--white-dim);
-    }
-    .auth-footer-links a {
-        color: var(--gold);
-        font-weight: 500;
-        transition: color var(--transition);
-    }
-    .auth-footer-links a:hover {
-        color: var(--gold-light);
-    }
+    .auth-footer-links p { font-size: 13px; color: var(--white-dim); }
+    .auth-footer-links a { color: var(--gold); font-weight: 500; transition: color var(--transition); }
+    .auth-footer-links a:hover { color: var(--gold-light); }
 
-    /* Trust badges row */
+    /* Trust badges */
     .auth-trust {
         display: flex;
         align-items: center;
@@ -348,11 +339,8 @@
         color: rgba(255,255,255,0.25);
         letter-spacing: 0.06em;
     }
-    .auth-trust-item span:first-child {
-        font-size: 13px;
-    }
+    .auth-trust-item span:first-child { font-size: 13px; }
 
-    /* Responsive */
     @media (max-width: 480px) {
         .auth-card-body { padding: 28px 24px 24px; }
         .auth-title { font-size: 24px; }
@@ -364,19 +352,23 @@
 <section class="auth-section">
     <div class="auth-card">
 
-        <!-- Gold accent strip at top -->
         <div class="auth-card-accent"></div>
 
         <div class="auth-card-body">
 
-            <!-- Header -->
+            <!-- Header — real logo replaces ball emoji -->
             <div class="auth-header">
-                <div class="auth-icon">🎱</div>
+                <div class="auth-icon">
+                    <img
+                        src="{% static 'images/snookernepal_logo.jpeg' %}"
+                        alt="Snooker Nepal"
+                    >
+                </div>
                 <h1 class="auth-title">Welcome <em>back</em></h1>
                 <p class="auth-subtitle">Sign in to your Snooker Nepal account</p>
             </div>
 
-            <!-- Non-field form errors -->
+            <!-- Non-field errors -->
             {% if form.non_field_errors %}
             <div class="auth-errors">
                 {% for error in form.non_field_errors %}
@@ -409,12 +401,10 @@
                     <div class="password-wrap">
                         {{ form.password }}
                         <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password">
-                            <!-- Eye icon (show) -->
                             <svg id="eyeShow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                 <circle cx="12" cy="12" r="3"/>
                             </svg>
-                            <!-- Eye-off icon (hide) — hidden by default -->
                             <svg id="eyeHide" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
                                 <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
                                 <line x1="1" y1="1" x2="23" y2="23"/>
@@ -435,7 +425,6 @@
                 </button>
             </form>
 
-            <!-- Divider -->
             <div class="auth-divider"><span>or continue with</span></div>
 
             <!-- Google OAuth -->
@@ -449,7 +438,6 @@
                 Continue with Google
             </a>
 
-            <!-- Register + trust row -->
             <div class="auth-footer-links">
                 <p>
                     Don't have an account?
@@ -457,7 +445,6 @@
                 </p>
             </div>
 
-            <!-- Trust badges -->
             <div class="auth-trust">
                 <div class="auth-trust-item"><span>🔒</span><span>Secure Login</span></div>
                 <div class="auth-trust-item"><span>🇳🇵</span><span>Nepal's #1</span></div>
@@ -472,7 +459,6 @@
 {% block extra_js %}
 <script>
     // ── Style Django's auto-generated input fields
-    // (Django renders raw <input> tags — we apply our classes here)
     document.querySelectorAll('.form-field input').forEach(input => {
         input.style.cssText = `
             width: 100%;
@@ -480,7 +466,7 @@
             background: var(--deep);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            color: var(--white);
+            color: #f5f3ee;
             font-family: var(--font-body);
             font-size: 14px;
             outline: none;
@@ -489,13 +475,13 @@
         `;
         input.addEventListener('focus', () => {
             input.style.borderColor = 'var(--gold)';
-            input.style.background   = 'var(--off-black)';
-            input.style.boxShadow    = '0 0 0 3px rgba(201,168,76,0.1)';
+            input.style.background  = 'var(--off-black)';
+            input.style.boxShadow   = '0 0 0 3px rgba(201,168,76,0.1)';
         });
         input.addEventListener('blur', () => {
             input.style.borderColor = 'var(--border)';
-            input.style.background   = 'var(--deep)';
-            input.style.boxShadow    = 'none';
+            input.style.background  = 'var(--deep)';
+            input.style.boxShadow   = 'none';
         });
     });
 
@@ -508,14 +494,11 @@
     if (toggleBtn && pwInput) {
         toggleBtn.addEventListener('click', () => {
             const isHidden = pwInput.type === 'password';
-            pwInput.type    = isHidden ? 'text' : 'password';
+            pwInput.type          = isHidden ? 'text'  : 'password';
             eyeShow.style.display = isHidden ? 'none'  : 'block';
             eyeHide.style.display = isHidden ? 'block' : 'none';
             toggleBtn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
         });
     }
-
-    // ── Auto-dismiss any Django messages after 4s
-    // (already handled in base.html — just here as a reminder)
 </script>
 {% endblock %}

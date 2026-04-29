@@ -6,11 +6,8 @@
     <title>{% block title %}Snooker Nepal — Premium Snooker Equipment{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}Nepal's premier destination for professional snooker equipment — cues, tips, chalk, cases and accessories.{% endblock %}">
 
-    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Typography: Playfair Display (luxury display) + DM Sans (clean UI) -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     {% load static %}
@@ -18,9 +15,6 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
     <style>
-        /* ══════════════════════════════════════════════
-           DESIGN TOKENS
-        ══════════════════════════════════════════════ */
         :root {
             --black:       #0a0a0a;
             --off-black:   #111111;
@@ -57,9 +51,6 @@
             --transition:  0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* ══════════════════════════════════════════════
-           RESET & BASE
-        ══════════════════════════════════════════════ */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         html {
@@ -80,7 +71,6 @@
             line-height: 1.6;
         }
 
-        /* Subtle felt-texture overlay on the entire page */
         body::before {
             content: '';
             position: fixed;
@@ -106,9 +96,7 @@
 
         main { flex: 1; position: relative; z-index: 1; }
 
-        /* ══════════════════════════════════════════════
-           ANNOUNCEMENT BAR
-        ══════════════════════════════════════════════ */
+        /* ── ANNOUNCEMENT BAR ── */
         .announcement-bar {
             background: linear-gradient(90deg, var(--green) 0%, var(--green-felt) 50%, var(--green) 100%);
             padding: 9px 24px;
@@ -135,9 +123,7 @@
         .announcement-bar a { text-decoration: underline; opacity: 0.85; }
         .announcement-bar a:hover { opacity: 1; }
 
-        /* ══════════════════════════════════════════════
-           NAVIGATION
-        ══════════════════════════════════════════════ */
+        /* ── NAVIGATION ── */
         .nav {
             position: sticky;
             top: 0;
@@ -162,44 +148,23 @@
             gap: 32px;
         }
 
-        /* Logo */
+        /* ── LOGO — now uses real image ── */
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0;
             flex-shrink: 0;
             text-decoration: none;
         }
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            box-shadow: 0 0 16px rgba(201,168,76,0.3);
-            flex-shrink: 0;
-        }
-        .logo-text-wrap { display: flex; flex-direction: column; line-height: 1; }
-        .logo-main {
-            font-family: var(--font-display);
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--white);
-            letter-spacing: 0.02em;
-        }
-        .logo-sub {
-            font-size: 9px;
-            font-weight: 500;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-top: 1px;
+        .logo-img {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            /* white background stripped — logo has white bg so we use a pill container */
         }
 
-        /* Nav center links */
+        /* Nav centre links */
         .nav-links {
             display: flex;
             align-items: center;
@@ -220,14 +185,33 @@
             background: var(--white-faint);
         }
 
-        /* Dropdown */
+        /* ── DROPDOWN FIX ──
+           The gap between the trigger and the panel was causing mouseleave.
+           We use a pseudo-element bridge to fill that gap so the mouse
+           never leaves the hover zone while travelling from link → panel.
+        ── */
         .nav-dropdown-wrap {
             position: relative;
         }
-        .nav-dropdown-wrap:hover .nav-dropdown { opacity: 1; pointer-events: all; transform: translateY(0); }
+        /* invisible bridge fills the 12px gap between link and panel */
+        .nav-dropdown-wrap::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            height: 16px; /* covers the gap */
+            background: transparent;
+        }
+        .nav-dropdown-wrap:hover .nav-dropdown,
+        .nav-dropdown-wrap:focus-within .nav-dropdown {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateX(-50%) translateY(0);
+        }
         .nav-dropdown {
             position: absolute;
-            top: calc(100% + 12px);
+            top: calc(100% + 16px); /* sits below the bridge */
             left: 50%;
             transform: translateX(-50%) translateY(-8px);
             min-width: 200px;
@@ -370,9 +354,7 @@
         }
         .mobile-menu .nav-link:hover { background: none; color: var(--gold); }
 
-        /* ══════════════════════════════════════════════
-           MESSAGES / TOASTS
-        ══════════════════════════════════════════════ */
+        /* ── MESSAGES ── */
         .messages-container {
             position: fixed;
             top: calc(var(--nav-h) + 16px);
@@ -403,34 +385,16 @@
             to   { opacity: 1; transform: translateX(0) scale(1); }
         }
         .message::before { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-        .message-success {
-            background: rgba(26,107,60,0.9);
-            border-color: rgba(29,122,68,0.6);
-            color: #a8f0c6;
-        }
+        .message-success { background: rgba(26,107,60,0.9); border-color: rgba(29,122,68,0.6); color: #a8f0c6; }
         .message-success::before { content: '✓'; }
-        .message-error {
-            background: rgba(120,20,20,0.9);
-            border-color: rgba(192,57,43,0.5);
-            color: #ffb3b3;
-        }
+        .message-error { background: rgba(120,20,20,0.9); border-color: rgba(192,57,43,0.5); color: #ffb3b3; }
         .message-error::before { content: '✕'; }
-        .message-warning {
-            background: rgba(120,80,10,0.9);
-            border-color: rgba(201,168,76,0.4);
-            color: #f0d48a;
-        }
+        .message-warning { background: rgba(120,80,10,0.9); border-color: rgba(201,168,76,0.4); color: #f0d48a; }
         .message-warning::before { content: '⚠'; }
-        .message-info {
-            background: rgba(20,60,120,0.9);
-            border-color: rgba(60,130,220,0.4);
-            color: #a8c8ff;
-        }
+        .message-info { background: rgba(20,60,120,0.9); border-color: rgba(60,130,220,0.4); color: #a8c8ff; }
         .message-info::before { content: 'i'; font-style: italic; font-weight: 700; }
 
-        /* ══════════════════════════════════════════════
-           BREADCRUMB
-        ══════════════════════════════════════════════ */
+        /* ── BREADCRUMB ── */
         .breadcrumb {
             display: flex;
             align-items: center;
@@ -444,9 +408,7 @@
         .breadcrumb-sep { color: rgba(255,255,255,0.2); font-size: 10px; }
         .breadcrumb-current { color: var(--white); font-weight: 500; }
 
-        /* ══════════════════════════════════════════════
-           FOOTER
-        ══════════════════════════════════════════════ */
+        /* ── FOOTER ── */
         .footer {
             background: var(--off-black);
             border-top: 1px solid var(--border);
@@ -454,9 +416,7 @@
             z-index: 1;
             margin-top: auto;
         }
-        .footer-top {
-            padding: 64px 0 48px;
-        }
+        .footer-top { padding: 64px 0 48px; }
         .footer-grid {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1.2fr;
@@ -464,6 +424,7 @@
         }
 
         .footer-brand .logo { margin-bottom: 16px; }
+        .footer-brand .logo-img { height: 56px; }   /* slightly bigger in footer */
         .footer-brand p {
             font-size: 13.5px;
             color: var(--white-dim);
@@ -487,11 +448,7 @@
             color: var(--white-dim);
             transition: border-color var(--transition), color var(--transition), background var(--transition);
         }
-        .footer-social a:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-            background: var(--gold-dim);
-        }
+        .footer-social a:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
 
         .footer-col-title {
             font-size: 11px;
@@ -501,11 +458,7 @@
             color: var(--gold);
             margin-bottom: 20px;
         }
-        .footer-col-links {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .footer-col-links { display: flex; flex-direction: column; gap: 10px; }
         .footer-col-links a {
             font-size: 13.5px;
             color: var(--white-dim);
@@ -513,12 +466,7 @@
         }
         .footer-col-links a:hover { color: var(--white); padding-left: 6px; }
 
-        .footer-contact-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
+        .footer-contact-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
         .footer-contact-icon {
             width: 32px;
             height: 32px;
@@ -543,10 +491,7 @@
             gap: 12px;
         }
         .footer-bottom-text { font-size: 12px; color: rgba(255,255,255,0.3); letter-spacing: 0.04em; }
-        .footer-bottom-links {
-            display: flex;
-            gap: 20px;
-        }
+        .footer-bottom-links { display: flex; gap: 20px; }
         .footer-bottom-links a { font-size: 12px; color: rgba(255,255,255,0.3); transition: color var(--transition); }
         .footer-bottom-links a:hover { color: var(--white-dim); }
 
@@ -565,9 +510,7 @@
             text-transform: uppercase;
         }
 
-        /* ══════════════════════════════════════════════
-           GLOBAL UTILITY CLASSES
-        ══════════════════════════════════════════════ */
+        /* ── GLOBAL UTILITIES ── */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -584,37 +527,13 @@
             text-decoration: none;
             white-space: nowrap;
         }
-        .btn-primary {
-            background: var(--gold);
-            color: var(--black);
-        }
-        .btn-primary:hover {
-            background: var(--gold-light);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-gold);
-        }
-        .btn-secondary {
-            background: transparent;
-            color: var(--white);
-            border: 1px solid var(--border-hover);
-        }
-        .btn-secondary:hover {
-            background: var(--white-faint);
-            border-color: rgba(255,255,255,0.3);
-        }
-        .btn-green {
-            background: var(--green-felt);
-            color: #fff;
-        }
-        .btn-green:hover {
-            background: #22925a;
-            transform: translateY(-2px);
-        }
-        .btn-danger {
-            background: transparent;
-            color: #ff8080;
-            border: 1px solid rgba(255,80,80,0.25);
-        }
+        .btn-primary { background: var(--gold); color: var(--black); }
+        .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: var(--shadow-gold); }
+        .btn-secondary { background: transparent; color: var(--white); border: 1px solid var(--border-hover); }
+        .btn-secondary:hover { background: var(--white-faint); border-color: rgba(255,255,255,0.3); }
+        .btn-green { background: var(--green-felt); color: #fff; }
+        .btn-green:hover { background: #22925a; transform: translateY(-2px); }
+        .btn-danger { background: transparent; color: #ff8080; border: 1px solid rgba(255,80,80,0.25); }
         .btn-danger:hover { background: rgba(255,80,80,0.1); }
 
         .badge {
@@ -631,49 +550,16 @@
         .badge-green  { background: rgba(26,107,60,0.3); color: #6ee8a2; border: 1px solid rgba(26,107,60,0.4); }
         .badge-red    { background: rgba(192,57,43,0.2); color: #ff8888; border: 1px solid rgba(192,57,43,0.3); }
 
-        .section-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 10px;
-        }
-        .section-title {
-            font-family: var(--font-display);
-            font-size: clamp(26px, 4vw, 42px);
-            font-weight: 600;
-            color: var(--white);
-            line-height: 1.15;
-            letter-spacing: -0.01em;
-        }
+        .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+        .section-title { font-family: var(--font-display); font-size: clamp(26px, 4vw, 42px); font-weight: 600; color: var(--white); line-height: 1.15; letter-spacing: -0.01em; }
         .section-title em { font-style: italic; color: var(--gold-light); }
 
-        /* Card base */
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
-        }
-        .card:hover {
-            border-color: var(--border-hover);
-            box-shadow: var(--shadow);
-            transform: translateY(-3px);
-        }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition); }
+        .card:hover { border-color: var(--border-hover); box-shadow: var(--shadow); transform: translateY(-3px); }
 
-        /* Divider */
-        .divider {
-            height: 1px;
-            background: var(--border);
-            border: none;
-            margin: 40px 0;
-        }
+        .divider { height: 1px; background: var(--border); border: none; margin: 40px 0; }
 
-        /* ══════════════════════════════════════════════
-           SCROLL TO TOP
-        ══════════════════════════════════════════════ */
+        /* ── SCROLL TO TOP ── */
         .scroll-top {
             position: fixed;
             bottom: 32px;
@@ -694,26 +580,15 @@
             pointer-events: none;
             transform: translateY(10px);
         }
-        .scroll-top.visible {
-            opacity: 1;
-            pointer-events: all;
-            transform: translateY(0);
-        }
-        .scroll-top:hover {
-            background: var(--gold-dim);
-            border-color: var(--gold);
-            color: var(--gold);
-        }
+        .scroll-top.visible { opacity: 1; pointer-events: all; transform: translateY(0); }
+        .scroll-top:hover { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
         .scroll-top svg { width: 18px; height: 18px; }
 
-        /* ══════════════════════════════════════════════
-           RESPONSIVE
-        ══════════════════════════════════════════════ */
+        /* ── RESPONSIVE ── */
         @media (max-width: 1024px) {
             .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
             .footer-brand { grid-column: 1 / -1; }
         }
-
         @media (max-width: 768px) {
             :root { --nav-h: 60px; }
             .nav-links, .nav-actions .btn-nav-primary { display: none; }
@@ -724,7 +599,6 @@
             .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
             .scroll-top { bottom: 20px; right: 20px; }
         }
-
         @media (max-width: 480px) {
             .container { padding: 0 16px; }
             .footer-grid { grid-template-columns: 1fr; }
@@ -744,24 +618,24 @@
     <nav class="nav" id="mainNav">
         <div class="container nav-container">
 
-            <!-- Logo -->
+            <!-- Logo — real image -->
             <a href="{% url 'products:home' %}" class="logo">
-                <div class="logo-icon">🎱</div>
-                <div class="logo-text-wrap">
-                    <span class="logo-main">Snooker Nepal</span>
-                    <span class="logo-sub">Est. Kathmandu</span>
-                </div>
+                <img
+                    src="{% static 'images/snookernepal_logo.jpeg' %}"
+                    alt="Snooker Nepal"
+                    class="logo-img"
+                    width="120"
+                    height="48"
+                >
             </a>
 
             <!-- Centre nav links -->
             <div class="nav-links">
                 <a href="{% url 'products:home' %}" class="nav-link">Home</a>
 
-                <!-- Shop dropdown -->
+                <!-- Shop dropdown — hover gap fixed -->
                 <div class="nav-dropdown-wrap">
-                    <a href="{% url 'products:list' %}" class="nav-link">
-                        Shop ▾
-                    </a>
+                    <a href="{% url 'products:list' %}" class="nav-link">Shop ▾</a>
                     <div class="nav-dropdown">
                         <a href="{% url 'products:list' %}">All Products</a>
                         <a href="{% url 'products:list' %}?filter=new_arrival">New Arrivals</a>
@@ -772,7 +646,6 @@
 
                 {% if user.is_authenticated %}
                     <a href="{% url 'orders:list' %}" class="nav-link">My Orders</a>
-                    <a href="{% url 'accounts:profile' %}" class="nav-link">Account</a>
                 {% endif %}
             </div>
 
@@ -785,18 +658,16 @@
                     </svg>
                 </a>
 
-                <!-- Account -->
+                <!-- Account or Sign In -->
                 {% if user.is_authenticated %}
-                    <a href="{% url 'accounts:profile' %}" class="nav-icon-btn" aria-label="Account">
+                    <a href="{% url 'accounts:profile' %}" class="nav-icon-btn" aria-label="My Account">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                             <circle cx="12" cy="7" r="4"/>
                         </svg>
                     </a>
                 {% else %}
-                    <a href="{% url 'accounts:login' %}" class="btn-nav-primary">
-                        Sign In
-                    </a>
+                    <a href="{% url 'accounts:login' %}" class="btn-nav-primary">Sign In</a>
                 {% endif %}
 
                 <!-- Cart -->
@@ -813,7 +684,7 @@
                     {% endwith %}
                 </a>
 
-                <!-- Hamburger -->
+                <!-- Hamburger (mobile) -->
                 <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
                     <span></span><span></span><span></span>
                 </button>
@@ -865,20 +736,21 @@
             <div class="container">
                 <div class="footer-grid">
 
-                    <!-- Brand column -->
+                    <!-- Brand column — real logo -->
                     <div class="footer-brand">
-                        <a href="{% url 'products:home' %}" class="logo">
-                            <div class="logo-icon">🎱</div>
-                            <div class="logo-text-wrap">
-                                <span class="logo-main">Snooker Nepal</span>
-                                <span class="logo-sub">Est. Kathmandu</span>
-                            </div>
+                        <a href="{% url 'products:home' %}" class="logo" style="margin-bottom:16px; display:inline-flex;">
+                            <img
+                                src="{% static 'images/snookernepal_logo.jpeg' %}"
+                                alt="Snooker Nepal"
+                                class="logo-img"
+                                style="height:56px;"
+                            >
                         </a>
                         <p>Nepal's premier destination for professional snooker equipment. From beginner kits to tournament-grade cues — we have everything the game demands.</p>
                         <div class="footer-social">
-                            <a href="#" aria-label="Facebook" title="Facebook">f</a>
-                            <a href="#" aria-label="Instagram" title="Instagram">ig</a>
-                            <a href="#" aria-label="TikTok" title="TikTok">tt</a>
+                            <a href="#" aria-label="Facebook">f</a>
+                            <a href="#" aria-label="Instagram">ig</a>
+                            <a href="#" aria-label="TikTok">tt</a>
                         </div>
                     </div>
 
@@ -901,7 +773,7 @@
                         <ul class="footer-col-links">
                             {% if user.is_authenticated %}
                                 <li><a href="{% url 'accounts:profile' %}">My Profile</a></li>
-                                <li><a href="{% url 'orders:list' %}">Order History</a></li>
+                                <li><a href="{% url 'orders:list' %}">My Orders</a></li>
                                 <li><a href="{% url 'cart:detail' %}">My Cart</a></li>
                                 <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
                             {% else %}
@@ -970,32 +842,26 @@
     {% block extra_js %}{% endblock %}
 
     <script>
-        // ── Sticky nav shadow on scroll
+        // Sticky nav
         const nav = document.getElementById('mainNav');
         const scrollTopBtn = document.getElementById('scrollTop');
-
         window.addEventListener('scroll', () => {
             nav.classList.toggle('scrolled', window.scrollY > 20);
             scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
         }, { passive: true });
 
-        // ── Scroll to top
-        scrollTopBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+        // Scroll to top
+        scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-        // ── Mobile menu
+        // Mobile menu
         const hamburger = document.getElementById('hamburger');
         const mobileMenu = document.getElementById('mobileMenu');
-
         hamburger.addEventListener('click', () => {
             const open = mobileMenu.classList.toggle('open');
             hamburger.classList.toggle('open', open);
             hamburger.setAttribute('aria-expanded', open);
             document.body.style.overflow = open ? 'hidden' : '';
         });
-
-        // Close mobile menu on link click
         mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 mobileMenu.classList.remove('open');
@@ -1005,9 +871,8 @@
             });
         });
 
-        // ── Auto-dismiss messages after 4s
-        const msgs = document.querySelectorAll('.message');
-        msgs.forEach((msg, i) => {
+        // Auto-dismiss messages
+        document.querySelectorAll('.message').forEach((msg, i) => {
             setTimeout(() => {
                 msg.style.transition = 'opacity 0.4s, transform 0.4s';
                 msg.style.opacity = '0';
@@ -1016,12 +881,10 @@
             }, 4000 + i * 500);
         });
 
-        // ── Mark active nav link
+        // Active nav link
         const currentPath = window.location.pathname;
         document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
+            if (link.getAttribute('href') === currentPath) link.classList.add('active');
         });
     </script>
 </body>
