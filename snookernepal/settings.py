@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 import environ
 import dj_database_url
+import cloudinary
+
 
 
 
@@ -47,6 +49,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'cloudinary_storage',
+    'cloudinary',
 
     # Local apps
     'products.apps.ProductsConfig',
@@ -54,6 +58,7 @@ INSTALLED_APPS = [
     'orders.apps.OrdersConfig',
     'accounts.apps.AccountsConfig',
     'tournaments.apps.TournamentsConfig',
+
 ]
 
 SITE_ID = 1
@@ -117,6 +122,12 @@ else:
     }
 
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
 
 
 
@@ -148,6 +159,12 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
