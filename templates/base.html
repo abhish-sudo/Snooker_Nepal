@@ -546,9 +546,19 @@
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
-        .badge-gold   { background: var(--gold-dim); color: var(--gold-light); border: 1px solid rgba(201,168,76,0.25); }
-        .badge-green  { background: rgba(26,107,60,0.3); color: #6ee8a2; border: 1px solid rgba(26,107,60,0.4); }
-        .badge-red    { background: rgba(192,57,43,0.2); color: #ff8888; border: 1px solid rgba(192,57,43,0.3); }
+        .badge-gold { 
+            background: linear-gradient(135deg, #fef08a 0%, #c9a84c 50%, #a16207 100%); 
+            color: #000 !important; 
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 4px 12px;
+            border-radius: 999px;
+            box-shadow: 0 4px 15px rgba(201,168,76,0.5);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        .badge-green  { background: rgba(26, 107, 60, 0.85); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
+        .badge-red    { background: rgba(192, 57, 43, 0.85); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
 
         .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
         .section-title { font-family: var(--font-display); font-size: clamp(26px, 4vw, 42px); font-weight: 600; color: var(--white); line-height: 1.15; letter-spacing: -0.01em; }
@@ -603,6 +613,151 @@
             .container { padding: 0 16px; }
             .footer-grid { grid-template-columns: 1fr; }
         }
+        /* Search backdrop */
+        .search-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 98;
+            animation: fadeIn 0.2s ease;
+        }
+        .search-backdrop.active { display: block; }
+        
+        /* Search bar wrap */
+        .search-bar-wrap {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 200;
+            transform: translateY(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+        .search-bar-wrap.active {
+            transform: translateY(0);
+            pointer-events: all;
+        }
+        
+        /* Search form */
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--off-black);
+            border-bottom: 2px solid var(--gold);
+            padding: 14px 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .search-form-icon {
+            width: 20px; height: 20px;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+        .search-form-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--white);
+            font-family: var(--font-body);
+            font-size: 18px;
+            font-weight: 400;
+            caret-color: var(--gold);
+        }
+        .search-form-input::placeholder { color: rgba(245,243,238,0.3); }
+        
+        .search-close-btn {
+            background: none; border: none;
+            color: var(--white-dim); cursor: pointer;
+            padding: 6px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: color var(--transition), background var(--transition);
+            flex-shrink: 0;
+        }
+        .search-close-btn:hover { color: var(--white); background: var(--white-faint); }
+        
+        /* Live suggestions */
+        .search-suggestions {
+            background: var(--off-black);
+            border-bottom: 1px solid var(--border);
+            max-height: 60vh;
+            overflow-y: auto;
+            display: none;
+        }
+        .search-suggestions.has-results { display: block; }
+        
+        .search-suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 24px;
+            text-decoration: none;
+            color: var(--white);
+            transition: background var(--transition);
+            border-bottom: 1px solid var(--border);
+        }
+        .search-suggestion-item:last-child { border-bottom: none; }
+        .search-suggestion-item:hover { background: var(--white-faint); }
+        
+        .search-sug-img {
+            width: 44px; height: 44px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            background: var(--surface);
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+        .search-sug-img-placeholder {
+            width: 44px; height: 44px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .search-sug-info { flex: 1; min-width: 0; }
+        .search-sug-name {
+            font-size: 14px; font-weight: 500;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .search-sug-meta { font-size: 12px; color: var(--white-dim); margin-top: 2px; }
+        .search-sug-price {
+            font-family: var(--font-mono);
+            font-size: 13px; color: var(--gold-light);
+            flex-shrink: 0;
+        }
+        
+        .search-sug-footer {
+            padding: 12px 24px;
+            font-size: 13px; color: var(--gold);
+            font-weight: 600; text-align: center;
+            cursor: pointer; text-decoration: none;
+            display: block;
+            transition: background var(--transition);
+        }
+        .search-sug-footer:hover { background: var(--white-faint); color: var(--gold-light); }
+        
+        .search-sug-empty {
+            padding: 24px;
+            text-align: center;
+            font-size: 13px; color: var(--white-dim);
+        }
+        
+        .search-sug-loading {
+            padding: 20px 24px;
+            text-align: center;
+            font-size: 13px; color: var(--white-dim);
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        @media (max-width: 768px) {
+            .search-form { padding: 12px 16px; }
+            .search-form-input { font-size: 16px; }
+            .search-suggestion-item { padding: 10px 16px; }
+            .search-sug-footer { padding: 12px 16px; }
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -633,8 +788,10 @@
             <div class="nav-links">
                 <a href="{% url 'products:home' %}" class="nav-link">Home</a>
 
+
                 <!-- Shop dropdown — hover gap fixed -->
                 <div class="nav-dropdown-wrap">
+                    
                     <a href="{% url 'products:list' %}" class="nav-link">Shop ▾</a>
                     <div class="nav-dropdown">
                         <a href="{% url 'products:list' %}">All Products</a>
@@ -642,7 +799,10 @@
                         <a href="{% url 'products:list' %}?filter=bestseller">Best Sellers</a>
                         <a href="{% url 'products:list' %}?filter=featured">Featured</a>
                     </div>
+
+
                 </div>
+                <a href="{% url 'tournaments:list' %}" class="nav-link">Tournaments</a>
 
                 {% if user.is_authenticated %}
                     <a href="{% url 'orders:list' %}" class="nav-link">My Orders</a>
@@ -652,11 +812,11 @@
             <!-- Right actions -->
             <div class="nav-actions">
                 <!-- Search -->
-                <a href="{% url 'products:list' %}" class="nav-icon-btn" aria-label="Search">
+                <button class="nav-icon-btn" id="searchTrigger" aria-label="Search" type="button">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                     </svg>
-                </a>
+                </button>
 
                 <!-- Account or Sign In -->
                 {% if user.is_authenticated %}
@@ -839,6 +999,34 @@
         </svg>
     </button>
 
+    <div class="search-backdrop" id="searchBackdrop"></div>
+ 
+    <!-- Search bar (expands on icon click) -->
+    <div class="search-bar-wrap" id="searchBarWrap">
+        <form action="{% url 'products:list' %}" method="get" class="search-form" role="search">
+            <svg class="search-form-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+                type="text"
+                name="q"
+                id="searchInput"
+                class="search-form-input"
+                placeholder="Search cues, chalk, cases..."
+                autocomplete="off"
+                spellcheck="false"
+            >
+            <button type="button" class="search-close-btn" id="searchCloseBtn" aria-label="Close search">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="16" height="16">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </form>
+    
+        <!-- Live suggestions dropdown -->
+        <div class="search-suggestions" id="searchSuggestions"></div>
+    </div>
+
     {% block extra_js %}{% endblock %}
 
     <script>
@@ -886,6 +1074,132 @@
         document.querySelectorAll('.nav-link').forEach(link => {
             if (link.getAttribute('href') === currentPath) link.classList.add('active');
         });
+
+        (function () {
+        const trigger      = document.getElementById('searchTrigger');
+        const wrap         = document.getElementById('searchBarWrap');
+        const backdrop     = document.getElementById('searchBackdrop');
+        const input        = document.getElementById('searchInput');
+        const closeBtn     = document.getElementById('searchCloseBtn');
+        const suggestions  = document.getElementById('searchSuggestions');
+    
+        let debounceTimer = null;
+    
+        function openSearch() {
+            wrap.classList.add('active');
+            backdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => input.focus(), 50);
+        }
+    
+        function closeSearch() {
+            wrap.classList.remove('active');
+            backdrop.classList.remove('active');
+            document.body.style.overflow = '';
+            suggestions.classList.remove('has-results');
+            suggestions.innerHTML = '';
+            input.value = '';
+        }
+    
+        trigger.addEventListener('click', openSearch);
+        closeBtn.addEventListener('click', closeSearch);
+        backdrop.addEventListener('click', closeSearch);
+    
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeSearch();
+        });
+    
+        // ── Live suggestions via fetch
+        input.addEventListener('input', () => {
+            const q = input.value.trim();
+            clearTimeout(debounceTimer);
+    
+            if (q.length < 2) {
+                suggestions.classList.remove('has-results');
+                suggestions.innerHTML = '';
+                return;
+            }
+    
+            // Show loading
+            suggestions.classList.add('has-results');
+            suggestions.innerHTML = '<div class="search-sug-loading">Searching...</div>';
+    
+            debounceTimer = setTimeout(() => {
+                fetch(`/products/?q=${encodeURIComponent(q)}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(r => r.text())
+                .then(html => {
+                    // Parse products from the returned page HTML
+                    const parser  = new DOMParser();
+                    const doc     = parser.parseFromString(html, 'text/html');
+                    // Grab product cards from the list page
+                    const cards   = doc.querySelectorAll('[data-product-id]');
+    
+                    if (cards.length === 0) {
+                        suggestions.innerHTML = `
+                            <div class="search-sug-empty">
+                                No products found for "<strong>${q}</strong>"
+                            </div>`;
+                        return;
+                    }
+    
+                    let html_out = '';
+                    let count = 0;
+                    cards.forEach(card => {
+                        if (count >= 5) return;
+                        const name  = card.dataset.productName  || '';
+                        const price = card.dataset.productPrice || '';
+                        const cat   = card.dataset.productCat   || '';
+                        const url   = card.dataset.productUrl   || '#';
+                        const img   = card.dataset.productImg   || '';
+    
+                        html_out += `
+                            <a href="${url}" class="search-suggestion-item" onclick="closeSearch && closeSearch()">
+                                ${img
+                                    ? `<img src="${img}" alt="${name}" class="search-sug-img" loading="lazy">`
+                                    : `<div class="search-sug-img-placeholder">🎱</div>`
+                                }
+                                <div class="search-sug-info">
+                                    <div class="search-sug-name">${name}</div>
+                                    <div class="search-sug-meta">${cat}</div>
+                                </div>
+                                ${price ? `<span class="search-sug-price">NPR ${price}</span>` : ''}
+                            </a>`;
+                        count++;
+                    });
+    
+                    // "See all results" footer
+                    html_out += `
+                        <a href="/products/?q=${encodeURIComponent(q)}" class="search-sug-footer">
+                            See all results for "${q}" →
+                        </a>`;
+    
+                    suggestions.innerHTML = html_out;
+                })
+                .catch(() => {
+                    // On any error just redirect to full search
+                    suggestions.innerHTML = `
+                        <a href="/products/?q=${encodeURIComponent(q)}" class="search-sug-footer">
+                            Search for "${q}" →
+                        </a>`;
+                });
+            }, 300);
+        });
+    
+        // Submit on Enter → go to full results page
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const q = input.value.trim();
+                if (q) window.location.href = `/products/?q=${encodeURIComponent(q)}`;
+            }
+        });
+    
+        // Make closeSearch accessible globally for inline onclick
+        window.closeSearch = closeSearch;
+    })();
     </script>
 </body>
 </html>

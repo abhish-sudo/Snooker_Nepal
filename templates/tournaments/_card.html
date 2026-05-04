@@ -1,0 +1,77 @@
+<a href="{% url 'tournaments:detail' t.pk %}" class="tc-card">
+
+    {% if t.poster %}
+        <img src="{{ t.poster.url }}" alt="{{ t.name }}" class="tc-card-poster" loading="lazy">
+    {% else %}
+        <div class="tc-card-poster-placeholder">🎱</div>
+    {% endif %}
+
+    <div class="tc-card-body">
+        <div class="tc-card-badges">
+            <span class="tc-badge tc-badge-{% if t.status == 'ongoing' %}green{% elif t.status == 'completed' %}gray{% else %}gold{% endif %}">
+                {{ t.get_status_display }}
+            </span>
+            {% if t.is_coming_soon %}
+                <span class="tc-badge tc-badge-gold">📅 Coming Soon</span>
+            {% endif %}
+            <span class="tc-badge tc-badge-blue">{{ t.get_category_display }}</span>
+            <span class="tc-badge tc-badge-gray">{{ t.get_format_display }}</span>
+        </div>
+
+        <h3 class="tc-card-name">{{ t.name }}</h3>
+
+        <div class="tc-card-meta">
+            <div class="tc-meta-row">
+                <span class="tc-meta-icon">📍</span>
+                <span class="tc-meta-text">{{ t.venue_name }}, {{ t.city }}</span>
+            </div>
+            {% if t.start_date and t.end_date %}
+            <div class="tc-meta-row">
+                <span class="tc-meta-icon">📅</span>
+                <span class="tc-meta-text">{{ t.start_date|date:"M j" }} – {{ t.end_date|date:"M j, Y" }}</span>
+            </div>
+            {% else %}
+            <div class="tc-meta-row">
+                <span class="tc-meta-icon">📅</span>
+                <span class="tc-meta-text" style="color: var(--gold-light);">Dates Coming Soon</span>
+            </div>
+            {% endif %}
+            {% if t.prize_money > 0 %}
+            <div class="tc-meta-row">
+                <span class="tc-meta-icon">🏆</span>
+                <span class="tc-meta-text tc-prize">NPR {{ t.prize_money|floatformat:0 }}</span>
+            </div>
+            {% endif %}
+            {% if t.entry_fee > 0 %}
+            <div class="tc-meta-row">
+                <span class="tc-meta-icon">💵</span>
+                <span class="tc-meta-text">Entry: NPR {{ t.entry_fee|floatformat:0 }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tc-card-footer">
+            <div class="tc-progress-label">
+                <span>{{ t.registrations.count }} registered</span>
+                <span>{{ t.spots_left }} spots left</span>
+            </div>
+            <div class="tc-progress-track">
+                <div class="tc-progress-fill" style="width: {{ t.registration_percentage }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tc-card-status">
+        {% if t.status == 'completed' %}
+            <span class="tc-status-closed">Event completed</span>
+        {% elif t.spots_left == 0 %}
+            <span class="tc-status-full">⚠ Full — no spots left</span>
+        {% elif t.is_registration_open %}
+            <span class="tc-status-open">✓ Registration open</span>
+        {% else %}
+            <span class="tc-status-closed">Registration closed</span>
+        {% endif %}
+        <span class="tc-view-link">View details →</span>
+    </div>
+
+</a>

@@ -1,0 +1,510 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ tournament.name }} — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .td-wrap { padding: 40px 0 80px; }
+
+    /* ── TWO COLUMN LAYOUT ── */
+    .td-layout {
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 32px;
+        align-items: start;
+    }
+
+    /* ── LEFT: Tournament info ── */
+    .td-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .td-badge {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+        text-transform: uppercase; padding: 4px 10px;
+        border-radius: var(--radius-pill); border: 1px solid transparent;
+    }
+    .td-badge-gold  { background: var(--gold-dim); color: var(--gold-light); border-color: rgba(201,168,76,0.2); }
+    .td-badge-green { background: rgba(29,122,68,0.25); color: #6ee8a2; border-color: rgba(29,122,68,0.3); }
+    .td-badge-blue  { background: rgba(41,128,185,0.2); color: #85c1e9; border-color: rgba(41,128,185,0.3); }
+    .td-badge-gray  { background: rgba(255,255,255,0.06); color: var(--white-dim); border-color: var(--border); }
+
+    .td-title {
+        font-family: var(--font-display);
+        font-size: clamp(24px, 4vw, 38px);
+        font-weight: 600; color: var(--white);
+        line-height: 1.15; letter-spacing: -0.02em;
+        margin-bottom: 24px;
+    }
+
+    .td-poster {
+        width: 100%; border-radius: var(--radius-lg);
+        overflow: hidden; margin-bottom: 28px;
+        border: 1px solid var(--border);
+    }
+    .td-poster img { width: 100%; display: block; }
+    .td-poster-placeholder {
+        background: linear-gradient(135deg, var(--deep) 0%, rgba(29,122,68,0.2) 100%);
+        aspect-ratio: 16/7;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 56px; color: rgba(255,255,255,0.06);
+    }
+
+    /* Info grid */
+    .td-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+    .td-info-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+    }
+    .td-info-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--gold);
+        margin-bottom: 5px;
+    }
+    .td-info-value {
+        font-size: 14px; color: var(--white);
+        font-weight: 500; line-height: 1.4;
+    }
+    .td-info-value a { color: var(--gold); }
+    .td-info-value a:hover { color: var(--gold-light); }
+
+    /* Description */
+    .td-desc {
+        font-size: 14px; color: var(--white-dim);
+        line-height: 1.8; margin-bottom: 28px;
+    }
+
+    /* Spots bar */
+    .td-spots {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 18px 20px;
+        margin-bottom: 28px;
+    }
+    .td-spots-row {
+        display: flex; justify-content: space-between;
+        font-size: 13px; color: var(--white-dim);
+        margin-bottom: 10px;
+    }
+    .td-spots-nums { color: var(--white); font-weight: 600; font-family: var(--font-mono); }
+    .td-progress-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+    .td-progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--green-felt), var(--gold)); }
+
+    /* Contact */
+    .td-contact {
+        display: flex; align-items: center; gap: 12px;
+        background: rgba(37,187,119,0.08);
+        border: 1px solid rgba(37,187,119,0.2);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+    }
+    .td-contact-icon { font-size: 20px; }
+    .td-contact-text { font-size: 13px; color: var(--white-dim); }
+    .td-contact-text a { color: #6ee8a2; font-weight: 600; }
+
+    /* ── RIGHT: Registration card ── */
+    .td-reg-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        position: sticky;
+        top: calc(var(--nav-h) + 20px);
+    }
+    .td-reg-accent {
+        height: 3px;
+        background: linear-gradient(90deg, var(--green), var(--gold), var(--green));
+    }
+    .td-reg-body { padding: 28px 28px 24px; }
+    .td-reg-title {
+        font-family: var(--font-display);
+        font-size: 20px; font-weight: 600; color: var(--white);
+        margin-bottom: 6px;
+    }
+    .td-reg-sub { font-size: 13px; color: var(--white-dim); margin-bottom: 24px; }
+
+    /* Fee info box */
+    .td-fee-box {
+        background: var(--gold-dim);
+        border: 1px solid rgba(201,168,76,0.2);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: var(--gold-light);
+        line-height: 1.6;
+    }
+    .td-fee-box strong { color: var(--white); }
+
+    /* Form */
+    .td-form-field { margin-bottom: 16px; }
+    .td-form-label {
+        display: block; font-size: 11px; font-weight: 600;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        color: var(--white-dim); margin-bottom: 7px;
+    }
+    .td-form-label .optional {
+        font-size: 10px; font-weight: 400; letter-spacing: 0;
+        text-transform: none; color: rgba(255,255,255,0.25);
+        margin-left: 4px;
+    }
+    .td-form-field input[type="text"],
+    .td-form-field input[type="tel"],
+    .td-form-field input[type="number"] {
+        width: 100%; padding: 11px 14px;
+        background: var(--deep);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--white);
+        font-family: var(--font-body);
+        font-size: 14px; outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition);
+        box-sizing: border-box;
+    }
+    .td-form-field input:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+    }
+    .td-form-field input:-webkit-autofill,
+    .td-form-field input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px #161616 inset !important;
+        -webkit-text-fill-color: #f5f3ee !important;
+    }
+
+    /* File upload */
+    .td-file-upload {
+        display: block; width: 100%;
+        padding: 18px 14px;
+        background: var(--deep);
+        border: 1px dashed rgba(255,255,255,0.2);
+        border-radius: var(--radius);
+        text-align: center; cursor: pointer;
+        color: var(--white-dim); font-size: 13px;
+        transition: border-color var(--transition), background var(--transition);
+    }
+    .td-file-upload:hover {
+        border-color: var(--gold);
+        background: rgba(201,168,76,0.04);
+    }
+    .td-file-upload input[type="file"] { display: none; }
+    .td-file-name { font-size: 11px; color: var(--gold); margin-top: 6px; }
+
+    /* Errors */
+    .errorlist { list-style: none; margin-top: 5px; }
+    .errorlist li {
+        font-size: 12px; color: #ff8080;
+        display: flex; align-items: center; gap: 4px;
+    }
+    .errorlist li::before { content: '✕'; font-size: 10px; }
+
+    /* Submit button */
+    .td-submit {
+        width: 100%; padding: 13px 24px;
+        background: var(--gold); color: var(--black);
+        border: none; border-radius: var(--radius-pill);
+        font-family: var(--font-body);
+        font-size: 14px; font-weight: 700;
+        letter-spacing: 0.05em; text-transform: uppercase;
+        cursor: pointer; margin-top: 8px;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+    .td-submit:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: var(--shadow-gold); }
+    .td-submit:active { transform: translateY(0); }
+    .td-submit:disabled {
+        background: rgba(255,255,255,0.1); color: var(--white-dim);
+        cursor: not-allowed; transform: none; box-shadow: none;
+    }
+
+    /* Closed notice */
+    .td-closed-notice {
+        text-align: center; padding: 28px 20px;
+        border-top: 1px solid var(--border);
+        font-size: 13px; color: var(--white-dim); line-height: 1.7;
+    }
+    .td-closed-notice strong { color: var(--white); }
+
+    /* Back link */
+    .td-back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; color: var(--white-dim);
+        margin-bottom: 24px;
+        transition: color var(--transition);
+    }
+    .td-back:hover { color: var(--gold); }
+
+    @media (max-width: 900px) {
+        .td-layout { grid-template-columns: 1fr; }
+        .td-reg-card { position: static; }
+    }
+    @media (max-width: 600px) {
+        .td-info-grid { grid-template-columns: 1fr; }
+        .td-reg-body { padding: 20px 18px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="td-wrap">
+    <div class="container">
+
+        <a href="{% url 'tournaments:list' %}" class="td-back">
+            ← Back to Calendar
+        </a>
+
+        <div class="td-layout">
+
+            <!-- LEFT COLUMN -->
+            <div>
+                <!-- Badges -->
+                <div class="td-badges">
+                    <span class="td-badge td-badge-{% if tournament.status == 'ongoing' %}green{% elif tournament.status == 'completed' %}gray{% else %}gold{% endif %}">
+                        {{ tournament.get_status_display }}
+                    </span>
+                    <span class="td-badge td-badge-blue">{{ tournament.get_category_display }}</span>
+                    <span class="td-badge td-badge-gray">{{ tournament.get_format_display }}</span>
+                </div>
+
+                <h1 class="td-title">{{ tournament.name }}</h1>
+
+                <!-- Poster -->
+                <div class="td-poster">
+                    {% if tournament.poster %}
+                        <img src="{{ tournament.poster.url }}" alt="{{ tournament.name }}">
+                    {% else %}
+                        <div class="td-poster-placeholder">🎱</div>
+                    {% endif %}
+                </div>
+
+                <!-- Info grid -->
+                <div class="td-info-grid">
+                    <div class="td-info-card">
+                        <p class="td-info-label">📍 Venue</p>
+                        <p class="td-info-value">
+                            {{ tournament.venue_name }}, {{ tournament.city }}
+                            {% if tournament.venue_map_link %}
+                                <br><a href="{{ tournament.venue_map_link }}" target="_blank" rel="noopener">View on Map →</a>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="td-info-card">
+                        <p class="td-info-label">📅 Dates</p>
+                        <p class="td-info-value">
+                            {% if tournament.is_coming_soon or not tournament.start_date %}
+                                <span style="color: var(--gold-light);">Coming Soon</span>
+                            {% else %}
+                                {{ tournament.start_date|date:"M j, Y" }}<br>
+                                to {{ tournament.end_date|date:"M j, Y" }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="td-info-card">
+                        <p class="td-info-label">⏰ Reg. Deadline</p>
+                        <p class="td-info-value">{{ tournament.registration_deadline|date:"M j, Y" }}</p>
+                    </div>
+                    <div class="td-info-card">
+                        <p class="td-info-label">💵 Entry Fee</p>
+                        <p class="td-info-value">
+                            {% if tournament.entry_fee > 0 %}
+                                NPR {{ tournament.entry_fee|floatformat:0 }}
+                            {% else %}
+                                Free
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if tournament.prize_money > 0 %}
+                    <div class="td-info-card" style="grid-column: 1 / -1;">
+                        <p class="td-info-label">🏆 Prize Money</p>
+                        <p class="td-info-value" style="color: var(--gold-light); font-family: var(--font-mono); font-size: 18px;">
+                            NPR {{ tournament.prize_money|floatformat:0 }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if tournament.description %}
+                <p class="td-desc">{{ tournament.description|linebreaks }}</p>
+                {% endif %}
+
+                <!-- Spots bar -->
+                <div class="td-spots">
+                    <div class="td-spots-row">
+                        <span>Players registered</span>
+                        <span class="td-spots-nums">{{ tournament.registrations.count }} / {{ tournament.max_players }}</span>
+                    </div>
+                    <div class="td-progress-track">
+                        <div class="td-progress-fill" style="width: {{ tournament.registration_percentage }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Contact -->
+                <div class="td-contact">
+                    <span class="td-contact-icon">💬</span>
+                    <div class="td-contact-text">
+                        Questions? Contact the organiser on WhatsApp:<br>
+                        <a href="https://wa.me/977{{ tournament.contact_phone }}" target="_blank" rel="noopener">
+                            +977 {{ tournament.contact_phone }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Registration -->
+            <div>
+                <div class="td-reg-card">
+                    <div class="td-reg-accent"></div>
+                    <div class="td-reg-body">
+
+                        <h2 class="td-reg-title">Register Now</h2>
+                        <p class="td-reg-sub">Fill in your details below — takes under 2 minutes.</p>
+
+                        {% if tournament.entry_fee > 0 %}
+                        <div class="td-fee-box">
+                            <strong>Entry Fee: NPR {{ tournament.entry_fee|floatformat:0 }}</strong><br>
+                            Pay via eSewa or Khalti to:<br>
+                            <strong>{{ tournament.contact_phone }}</strong><br>
+                            Then upload the screenshot below.
+                        </div>
+                        {% endif %}
+
+                        {% if tournament.status == 'upcoming' and tournament.registration_deadline >= today %}
+                        <form method="post" enctype="multipart/form-data" novalidate id="regForm">
+                            {% csrf_token %}
+
+                            <div class="td-form-field">
+                                <label class="td-form-label" for="id_full_name">Full Name</label>
+                                <input type="text" name="full_name" id="id_full_name"
+                                    placeholder="e.g. Ram Bahadur Thapa"
+                                    value="{{ form.full_name.value|default:'' }}"
+                                    autocomplete="name" required>
+                                {{ form.full_name.errors }}
+                            </div>
+
+                            <div class="td-form-field">
+                                <label class="td-form-label" for="id_phone">Mobile Number</label>
+                                <input type="tel" name="phone" id="id_phone"
+                                    placeholder="e.g. 9841XXXXXX"
+                                    value="{{ form.phone.value|default:'' }}"
+                                    autocomplete="tel" maxlength="15" required>
+                                {{ form.phone.errors }}
+                            </div>
+
+                            <div class="td-form-field">
+                                <label class="td-form-label" for="id_city">City</label>
+                                <input type="text" name="city" id="id_city"
+                                    placeholder="e.g. Kathmandu"
+                                    value="{{ form.city.value|default:'' }}" required>
+                                {{ form.city.errors }}
+                            </div>
+
+                            <div class="td-form-field">
+                                <label class="td-form-label" for="id_age">Age</label>
+                                <input type="number" name="age" id="id_age"
+                                    placeholder="e.g. 24"
+                                    value="{{ form.age.value|default:'' }}"
+                                    min="10" max="80" required>
+                                {{ form.age.errors }}
+                            </div>
+
+                            <div class="td-form-field">
+                                <label class="td-form-label" for="id_club_or_hall">
+                                    Club / Hall <span class="optional">(optional)</span>
+                                </label>
+                                <input type="text" name="club_or_hall" id="id_club_or_hall"
+                                    placeholder="e.g. City Snooker Club"
+                                    value="{{ form.club_or_hall.value|default:'' }}">
+                                {{ form.club_or_hall.errors }}
+                            </div>
+
+                            {% if tournament.entry_fee > 0 %}
+                            <div class="td-form-field">
+                                <label class="td-form-label">
+                                    Payment Screenshot <span class="optional">(eSewa / Khalti)</span>
+                                </label>
+                                <label class="td-file-upload" id="fileLabel">
+                                    <input type="file" name="payment_screenshot" id="id_payment_screenshot"
+                                        accept="image/*" onchange="updateFileName(this)">
+                                    📸 Tap to upload screenshot
+                                </label>
+                                <p class="td-file-name" id="fileName"></p>
+                                {{ form.payment_screenshot.errors }}
+                            </div>
+                            {% endif %}
+
+                            <button type="submit" class="td-submit" id="submitBtn">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Register for this Tournament
+                            </button>
+                        </form>
+
+                        {% else %}
+                        <div class="td-closed-notice">
+                            {% if tournament.status == 'completed' %}
+                                <strong>This tournament has ended.</strong><br>
+                                Check the calendar for upcoming events.
+                            {% elif tournament.spots_left == 0 %}
+                                <strong>This tournament is full.</strong><br>
+                                Contact the organiser to join the waiting list.
+                            {% else %}
+                                <strong>Registration is closed.</strong><br>
+                                The deadline was {{ tournament.registration_deadline|date:"M j, Y" }}.
+                            {% endif %}
+                            <br><br>
+                            <a href="{% url 'tournaments:list' %}" class="btn btn-secondary" style="display:inline-flex;">
+                                ← View Other Tournaments
+                            </a>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateFileName(input) {
+        const label = document.getElementById('fileName');
+        const fileLabel = document.getElementById('fileLabel');
+        if (input.files && input.files[0]) {
+            label.textContent = '✓ ' + input.files[0].name;
+            fileLabel.style.borderColor = 'var(--gold)';
+            fileLabel.style.color = 'var(--gold-light)';
+        }
+    }
+
+    // Prevent double-submit
+    const form = document.getElementById('regForm');
+    const btn  = document.getElementById('submitBtn');
+    if (form && btn) {
+        form.addEventListener('submit', () => {
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Submitting...';
+        });
+    }
+
+    // Style inputs (autofill-safe)
+    document.querySelectorAll('.td-form-field input[type="text"], .td-form-field input[type="tel"], .td-form-field input[type="number"]').forEach(input => {
+        input.addEventListener('focus', () => {
+            input.style.borderColor = 'var(--gold)';
+            input.style.boxShadow   = '0 0 0 3px rgba(201,168,76,0.1)';
+        });
+        input.addEventListener('blur', () => {
+            input.style.borderColor = 'var(--border)';
+            input.style.boxShadow   = 'none';
+        });
+    });
+</script>
+{% endblock %}

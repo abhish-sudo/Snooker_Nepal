@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registration Received — {{ tournament.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ts-wrap {
+        min-height: calc(100vh - var(--nav-h) - 40px);
+        display: flex; align-items: center; justify-content: center;
+        padding: 48px 16px;
+    }
+    .ts-card {
+        width: 100%; max-width: 540px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+    }
+    .ts-accent {
+        height: 3px;
+        background: linear-gradient(90deg, var(--green), var(--gold), var(--green));
+    }
+    .ts-body { padding: 40px 36px 36px; }
+
+    /* Status icon */
+    .ts-icon {
+        width: 68px; height: 68px;
+        background: rgba(201,168,76,0.1);
+        border: 1px solid rgba(201,168,76,0.25);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 30px; margin: 0 auto 20px;
+        box-shadow: 0 0 24px rgba(201,168,76,0.12);
+    }
+
+    .ts-title {
+        font-family: var(--font-display);
+        font-size: 24px; font-weight: 600; color: var(--white);
+        margin-bottom: 8px; line-height: 1.2;
+    }
+    .ts-title em { font-style: italic; color: var(--gold-light); }
+
+    /* Status pill */
+    .ts-status-pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(201,168,76,0.1);
+        border: 1px solid rgba(201,168,76,0.25);
+        border-radius: var(--radius-pill);
+        padding: 5px 14px;
+        font-size: 12px; font-weight: 600;
+        letter-spacing: 0.08em; text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 20px;
+    }
+    .ts-status-dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: var(--gold);
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .ts-sub {
+        font-size: 14px; color: var(--white-dim);
+        line-height: 1.7; margin-bottom: 24px;
+    }
+
+    /* Steps */
+    .ts-steps {
+        background: var(--deep);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        text-align: left;
+        margin-bottom: 24px;
+    }
+    .ts-steps-title {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+        text-transform: uppercase; color: var(--gold);
+        margin-bottom: 16px;
+    }
+    .ts-step {
+        display: flex; align-items: flex-start; gap: 12px;
+        margin-bottom: 14px;
+    }
+    .ts-step:last-child { margin-bottom: 0; }
+    .ts-step-num {
+        width: 24px; height: 24px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 700;
+        flex-shrink: 0; margin-top: 1px;
+    }
+    .ts-step-num.done {
+        background: rgba(29,122,68,0.3);
+        border: 1px solid rgba(29,122,68,0.4);
+        color: #6ee8a2;
+    }
+    .ts-step-num.pending {
+        background: rgba(201,168,76,0.12);
+        border: 1px solid rgba(201,168,76,0.25);
+        color: var(--gold-light);
+    }
+    .ts-step-num.waiting {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--border);
+        color: var(--white-dim);
+    }
+    .ts-step-text { font-size: 13px; color: var(--white-dim); line-height: 1.5; }
+    .ts-step-text strong { color: var(--white); display: block; margin-bottom: 2px; }
+
+    /* Summary box */
+    .ts-summary {
+        background: var(--deep);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        text-align: left;
+        margin-bottom: 24px;
+    }
+    .ts-summary-row {
+        display: flex; justify-content: space-between; align-items: baseline;
+        padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .ts-summary-row:last-child { border-bottom: none; }
+    .ts-summary-key { font-size: 12px; color: var(--white-dim); }
+    .ts-summary-val {
+        font-size: 13px; color: var(--white); font-weight: 500;
+        text-align: right; max-width: 60%;
+    }
+
+    /* WhatsApp button */
+    .ts-wa-btn {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        width: 100%; padding: 12px 20px;
+        background: #25D366; color: #fff;
+        border: none; border-radius: var(--radius-pill);
+        font-family: var(--font-body); font-size: 14px; font-weight: 700;
+        text-decoration: none; margin-bottom: 10px;
+        transition: background var(--transition), transform var(--transition);
+    }
+    .ts-wa-btn:hover { background: #1fba57; transform: translateY(-2px); color: #fff; }
+
+    .ts-back {
+        display: inline-block; font-size: 13px; color: var(--white-dim);
+        text-decoration: underline; margin-top: 8px;
+        transition: color var(--transition);
+    }
+    .ts-back:hover { color: var(--gold); }
+
+    .ts-note {
+        font-size: 11px; color: rgba(255,255,255,0.22);
+        margin-top: 20px; line-height: 1.7;
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ts-wrap">
+    <div class="ts-card">
+        <div class="ts-accent"></div>
+        <div class="ts-body">
+
+            <div class="ts-icon">⏳</div>
+
+            <h1 class="ts-title">Registration <em>Received!</em></h1>
+
+            <div class="ts-status-pill">
+                <span class="ts-status-dot"></span>
+                Payment Verification Pending
+            </div>
+
+            <p class="ts-sub">
+                Your registration for <strong style="color:var(--white);">{{ tournament.name }}</strong>
+                has been received. Your spot will be <strong style="color:var(--white);">confirmed once your payment is verified</strong> by the organiser.
+            </p>
+
+            <!-- Steps -->
+            <div class="ts-steps">
+                <p class="ts-steps-title">What happens next</p>
+
+                <div class="ts-step">
+                    <div class="ts-step-num done">✓</div>
+                    <div class="ts-step-text">
+                        <strong>Registration submitted</strong>
+                        Your details have been received successfully.
+                    </div>
+                </div>
+
+                <div class="ts-step">
+                    <div class="ts-step-num pending">2</div>
+                    <div class="ts-step-text">
+                        <strong>Payment verification</strong>
+                        The organiser will verify your payment screenshot.
+                        {% if tournament.entry_fee > 0 %}
+                        Make sure you have paid NPR {{ tournament.entry_fee|floatformat:0 }} to <strong style="color:var(--white);">{{ tournament.contact_phone }}</strong> via eSewa or Khalti.
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="ts-step">
+                    <div class="ts-step-num waiting">3</div>
+                    <div class="ts-step-text">
+                        <strong>Confirmation on WhatsApp</strong>
+                        Once approved, you will receive a WhatsApp confirmation on <strong style="color:var(--white);">{{ registration.phone }}</strong>.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Summary -->
+            <div class="ts-summary">
+                <div class="ts-summary-row">
+                    <span class="ts-summary-key">Name</span>
+                    <span class="ts-summary-val">{{ registration.full_name }}</span>
+                </div>
+                <div class="ts-summary-row">
+                    <span class="ts-summary-key">Mobile</span>
+                    <span class="ts-summary-val">{{ registration.phone }}</span>
+                </div>
+                <div class="ts-summary-row">
+                    <span class="ts-summary-key">Tournament</span>
+                    <span class="ts-summary-val">{{ tournament.name }}</span>
+                </div>
+                <div class="ts-summary-row">
+                    <span class="ts-summary-key">Venue</span>
+                    <span class="ts-summary-val">{{ tournament.venue_name }}, {{ tournament.city }}</span>
+                </div>
+                {% if tournament.entry_fee > 0 %}
+                <div class="ts-summary-row">
+                    <span class="ts-summary-key">Entry Fee</span>
+                    <span class="ts-summary-val" style="color:var(--gold-light);">NPR {{ tournament.entry_fee|floatformat:0 }}</span>
+                </div>
+                {% endif %}
+                <div class="ts-summary-row">
+                    <span class="ts-summary-key">Status</span>
+                    <span class="ts-summary-val" style="color:var(--gold-light);">⏳ Pending Verification</span>
+                </div>
+            </div>
+
+            <!-- WhatsApp organiser -->
+            <a href="{{ whatsapp_url }}" target="_blank" rel="noopener" class="ts-wa-btn">
+                <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor">
+                    <path d="M16 2C8.28 2 2 8.28 2 16c0 2.44.65 4.73 1.78 6.72L2 30l7.46-1.75A13.93 13.93 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2zm7.14 19.56c-.3.84-1.76 1.6-2.42 1.7-.62.1-1.4.14-2.26-.14-.52-.17-1.18-.4-2.04-.78-3.58-1.56-5.92-5.16-6.1-5.4-.18-.24-1.44-1.92-1.44-3.66s.9-2.6 1.22-2.96c.3-.34.66-.42.88-.42s.44 0 .62.02c.2 0 .46-.08.72.54.28.64.94 2.3 1.02 2.48.08.18.14.38.02.6-.12.24-.18.38-.34.58-.18.2-.38.44-.54.6-.18.18-.36.38-.16.72.2.34.9 1.48 1.92 2.4 1.32 1.18 2.44 1.54 2.78 1.72.34.18.54.14.74-.08.2-.24.86-.98 1.08-1.32.22-.34.44-.28.74-.16.3.12 1.9.9 2.22 1.06.32.16.54.24.62.38.08.14.08.78-.22 1.62z"/>
+                </svg>
+                Send Confirmation to Organiser on WhatsApp
+            </a>
+
+            <a href="{% url 'tournaments:list' %}" class="ts-back">← Back to Tournament Calendar</a>
+
+            <p class="ts-note">
+                📸 Screenshot this page as proof of registration.<br>
+                You will receive a WhatsApp message on <strong style="color:rgba(255,255,255,0.4);">{{ registration.phone }}</strong> once your payment is confirmed.<br>
+                For queries contact: <strong style="color:rgba(255,255,255,0.4);">+977 {{ tournament.contact_phone }}</strong>
+            </p>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

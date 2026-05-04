@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tournament Calendar — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── PAGE HERO ── */
+    .tc-hero {
+        background: linear-gradient(135deg, var(--deep) 0%, rgba(29,122,68,0.15) 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 56px 0 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    .tc-hero::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .tc-hero-inner { position: relative; z-index: 1; }
+    .tc-hero-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.22em;
+        text-transform: uppercase; color: var(--gold); margin-bottom: 10px;
+    }
+    .tc-hero-title {
+        font-family: var(--font-display);
+        font-size: clamp(28px, 5vw, 46px);
+        font-weight: 600; color: var(--white);
+        line-height: 1.1; letter-spacing: -0.02em;
+        margin-bottom: 12px;
+    }
+    .tc-hero-title em { font-style: italic; color: var(--gold-light); }
+    .tc-hero-sub { font-size: 14px; color: var(--white-dim); max-width: 520px; }
+
+    /* ── FILTER BAR ── */
+    .tc-filter-bar {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 14px 0;
+        position: sticky;
+        top: var(--nav-h);
+        z-index: 90;
+        backdrop-filter: blur(12px);
+    }
+    .tc-filter-inner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .tc-filter-label {
+        font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+        text-transform: uppercase; color: var(--white-dim);
+        white-space: nowrap;
+    }
+    .tc-filter-form { display: flex; align-items: center; gap: 8px; }
+    .tc-filter-select {
+        background: var(--deep);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-pill);
+        color: var(--white);
+        font-family: var(--font-body);
+        font-size: 13px;
+        padding: 7px 14px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color var(--transition);
+    }
+    .tc-filter-select:focus { border-color: var(--gold); }
+    .tc-filter-btn {
+        padding: 7px 16px;
+        background: var(--gold);
+        color: var(--black);
+        border: none;
+        border-radius: var(--radius-pill);
+        font-size: 12px; font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+        transition: background var(--transition);
+    }
+    .tc-filter-btn:hover { background: var(--gold-light); }
+    .tc-filter-clear {
+        font-size: 12px; color: var(--white-dim);
+        text-decoration: underline; cursor: pointer;
+    }
+    .tc-filter-clear:hover { color: var(--white); }
+
+    /* ── MAIN CONTENT ── */
+    .tc-content { padding: 48px 0 80px; }
+
+    /* Section heading */
+    .tc-section { margin-bottom: 48px; }
+    .tc-section-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+    .tc-section-dot {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .tc-section-dot.upcoming  { background: var(--gold); box-shadow: 0 0 8px rgba(201,168,76,0.5); }
+    .tc-section-dot.ongoing   { background: #27ae60;      box-shadow: 0 0 8px rgba(39,174,96,0.5); }
+    .tc-section-dot.completed { background: var(--white-dim); }
+    .tc-section-title {
+        font-family: var(--font-display);
+        font-size: 20px; font-weight: 600; color: var(--white);
+    }
+    .tc-section-count {
+        margin-left: auto;
+        font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+        text-transform: uppercase; color: var(--white-dim);
+    }
+
+    /* ── TOURNAMENT CARD ── */
+    .tc-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    .tc-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    .tc-card:hover {
+        border-color: var(--gold);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,168,76,0.1);
+        transform: translateY(-4px);
+    }
+
+    /* Poster / placeholder */
+    .tc-card-poster {
+        width: 100%; aspect-ratio: 16/7;
+        object-fit: cover;
+        display: block;
+        background: var(--deep);
+    }
+    .tc-card-poster-placeholder {
+        width: 100%; aspect-ratio: 16/7;
+        background: linear-gradient(135deg, var(--deep) 0%, rgba(29,122,68,0.2) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        color: rgba(255,255,255,0.05);
+    }
+
+    .tc-card-body { padding: 18px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+
+    .tc-card-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tc-badge {
+        font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+        text-transform: uppercase; padding: 3px 8px;
+        border-radius: var(--radius-pill); border: 1px solid transparent;
+    }
+    .tc-badge-gold    { background: var(--gold-dim); color: var(--gold-light); border-color: rgba(201,168,76,0.2); }
+    .tc-badge-green   { background: rgba(29,122,68,0.25); color: #6ee8a2; border-color: rgba(29,122,68,0.3); }
+    .tc-badge-blue    { background: rgba(41,128,185,0.2); color: #85c1e9; border-color: rgba(41,128,185,0.3); }
+    .tc-badge-gray    { background: rgba(255,255,255,0.06); color: var(--white-dim); border-color: var(--border); }
+
+    .tc-card-name {
+        font-family: var(--font-display);
+        font-size: 16px; font-weight: 600; color: var(--white);
+        line-height: 1.3; margin-bottom: 12px;
+    }
+
+    .tc-card-meta { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+    .tc-meta-row {
+        display: flex; align-items: flex-start; gap: 8px;
+        font-size: 12.5px; color: var(--white-dim);
+    }
+    .tc-meta-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .tc-meta-text { line-height: 1.4; }
+
+    /* Progress bar */
+    .tc-card-footer { margin-top: auto; }
+    .tc-progress-label {
+        display: flex; justify-content: space-between;
+        font-size: 11px; color: var(--white-dim); margin-bottom: 5px;
+    }
+    .tc-progress-track {
+        height: 4px; background: rgba(255,255,255,0.08);
+        border-radius: 2px; overflow: hidden;
+    }
+    .tc-progress-fill {
+        height: 100%; border-radius: 2px;
+        background: linear-gradient(90deg, var(--green-felt), var(--gold));
+        transition: width 0.6s ease;
+    }
+
+    /* Status strip at bottom of card */
+    .tc-card-status {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 20px;
+        border-top: 1px solid var(--border);
+        background: rgba(0,0,0,0.2);
+        font-size: 12px;
+    }
+    .tc-status-open   { color: #6ee8a2; }
+    .tc-status-closed { color: var(--white-dim); }
+    .tc-status-full   { color: #ff8080; }
+    .tc-view-link     { color: var(--gold); font-size: 12px; font-weight: 600; }
+
+    /* Prize pill */
+    .tc-prize {
+        font-family: var(--font-mono);
+        font-size: 12px; font-weight: 500;
+        color: var(--gold-light);
+    }
+
+    /* Empty state */
+    .tc-empty {
+        text-align: center; padding: 48px 24px;
+        color: var(--white-dim); font-size: 14px;
+        border: 1px dashed var(--border);
+        border-radius: var(--radius-lg);
+    }
+    .tc-empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+
+    /* Divider */
+    .tc-divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+    @media (max-width: 600px) {
+        .tc-hero { padding: 36px 0 28px; }
+        .tc-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="tc-hero">
+    <div class="container tc-hero-inner">
+        <p class="tc-hero-label">🏆 Nepal Snooker</p>
+        <h1 class="tc-hero-title">Tournament <em>Calendar</em></h1>
+        <p class="tc-hero-sub">Find and register for snooker tournaments happening across Nepal — from club-level events to national rankings.</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'tournaments:submit' %}" class="btn btn-primary" style="margin-top: 20px; display: inline-flex;">
+            + Submit a Tournament
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:login' %}?next={% url 'tournaments:submit' %}" 
+        class="btn btn-secondary" style="margin-top: 20px; display: inline-flex;">
+            Sign in to Submit a Tournament
+        </a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Filter bar -->
+<div class="tc-filter-bar">
+    <div class="container tc-filter-inner">
+        <span class="tc-filter-label">Filter by city:</span>
+        <form method="get" class="tc-filter-form">
+            <select name="city" class="tc-filter-select" onchange="this.form.submit()">
+                <option value="">All Cities</option>
+                {% for c in all_cities %}
+                    <option value="{{ c }}" {% if c == city_filter %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        {% if city_filter %}
+            <a href="{% url 'tournaments:list' %}" class="tc-filter-clear">Clear filter</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Content -->
+<div class="tc-content">
+    <div class="container">
+
+        {% if ongoing %}
+        <!-- ONGOING -->
+        <section class="tc-section">
+            <div class="tc-section-head">
+                <div class="tc-section-dot ongoing"></div>
+                <h2 class="tc-section-title">Happening Now</h2>
+                <span class="tc-section-count">{{ ongoing|length }} tournament{{ ongoing|length|pluralize }}</span>
+            </div>
+            <div class="tc-grid">
+                {% for t in ongoing %}
+                    {% include 'tournaments/_card.html' with t=t %}
+                {% endfor %}
+            </div>
+        </section>
+        <hr class="tc-divider">
+        {% endif %}
+
+        <!-- UPCOMING -->
+        <section class="tc-section">
+            <div class="tc-section-head">
+                <div class="tc-section-dot upcoming"></div>
+                <h2 class="tc-section-title">Upcoming Tournaments</h2>
+                <span class="tc-section-count">{{ upcoming|length }} tournament{{ upcoming|length|pluralize }}</span>
+            </div>
+            {% if upcoming %}
+                <div class="tc-grid">
+                    {% for t in upcoming %}
+                        {% include 'tournaments/_card.html' with t=t %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="tc-empty">
+                    <div class="tc-empty-icon">📅</div>
+                    <p>No upcoming tournaments at the moment.</p>
+                    <p style="margin-top:6px; font-size:12px;">Check back soon — new events are added regularly.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        {% if completed %}
+        <hr class="tc-divider">
+        <!-- COMPLETED -->
+        <section class="tc-section">
+            <div class="tc-section-head">
+                <div class="tc-section-dot completed"></div>
+                <h2 class="tc-section-title">Past Tournaments</h2>
+                <span class="tc-section-count">{{ completed|length }} recent</span>
+            </div>
+            <div class="tc-grid">
+                {% for t in completed %}
+                    {% include 'tournaments/_card.html' with t=t %}
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

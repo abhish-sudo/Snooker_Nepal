@@ -1,0 +1,619 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Submit a Tournament — Snooker Nepal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sub-wrap { padding: 48px 0 80px; }
+
+    .sub-hero {
+        background: linear-gradient(135deg, var(--deep) 0%, rgba(29,122,68,0.12) 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 48px 0 36px;
+        margin-bottom: 40px;
+    }
+    .sub-hero-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.22em;
+        text-transform: uppercase; color: var(--gold); margin-bottom: 10px;
+    }
+    .sub-hero-title {
+        font-family: var(--font-display);
+        font-size: clamp(26px, 4vw, 40px);
+        font-weight: 600; color: var(--white);
+        line-height: 1.1; margin-bottom: 10px;
+    }
+    .sub-hero-title em { font-style: italic; color: var(--gold-light); }
+    .sub-hero-sub { font-size: 13.5px; color: var(--white-dim); }
+
+    /* Layout */
+    .sub-layout {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 32px;
+        align-items: start;
+    }
+
+    /* Form card */
+    .sub-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+    .sub-card-accent {
+        height: 3px;
+        background: linear-gradient(90deg, var(--green), var(--gold), var(--green));
+    }
+    .sub-card-body { padding: 32px; }
+
+    /* Section dividers inside form */
+    .sub-section {
+        margin-bottom: 28px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--border);
+    }
+    .sub-section:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .sub-section-title {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--gold);
+        margin-bottom: 18px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .sub-section-title::after {
+        content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Two column grid for some fields */
+    .sub-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    /* Form fields */
+    .sub-field { margin-bottom: 16px; }
+    .sub-label {
+        display: block; font-size: 11px; font-weight: 600;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        color: var(--white-dim); margin-bottom: 7px;
+    }
+    .sub-label .optional {
+        font-size: 10px; font-weight: 400; letter-spacing: 0;
+        text-transform: none; color: rgba(255,255,255,0.25); margin-left: 4px;
+    }
+    .sub-label .required {
+        color: var(--gold); margin-left: 2px;
+    }
+
+    .sub-input,
+    .sub-select,
+    .sub-textarea {
+        width: 100%;
+        padding: 11px 14px;
+        background: var(--deep);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--white);
+        font-family: var(--font-body);
+        font-size: 14px;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition);
+        box-sizing: border-box;
+        -webkit-appearance: none;
+    }
+    .sub-select {
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='rgba(245,243,238,0.4)' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+    }
+    .sub-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+    .sub-input:focus,
+    .sub-select:focus,
+    .sub-textarea:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+        background: var(--off-black);
+    }
+    .sub-input:hover,
+    .sub-select:hover,
+    .sub-textarea:hover {
+        border-color: var(--border-hover);
+    }
+
+    /* Autofill fix */
+    .sub-input:-webkit-autofill,
+    .sub-input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px #161616 inset !important;
+        -webkit-text-fill-color: #f5f3ee !important;
+    }
+
+    /* File upload */
+    .sub-file-label {
+        display: flex; align-items: center; justify-content: center;
+        flex-direction: column; gap: 8px;
+        width: 100%; padding: 24px 16px;
+        background: var(--deep);
+        border: 1px dashed rgba(255,255,255,0.18);
+        border-radius: var(--radius);
+        cursor: pointer; text-align: center;
+        color: var(--white-dim); font-size: 13px;
+        transition: border-color var(--transition), background var(--transition);
+    }
+    .sub-file-label:hover {
+        border-color: var(--gold);
+        background: rgba(201,168,76,0.04);
+        color: var(--white);
+    }
+    .sub-file-label input[type="file"] { display: none; }
+    .sub-file-icon { font-size: 24px; }
+    .sub-file-hint { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 2px; }
+    .sub-file-chosen { font-size: 12px; color: var(--gold); margin-top: 6px; }
+
+    /* Django errors */
+    .errorlist { list-style: none; margin-top: 5px; }
+    .errorlist li {
+        font-size: 12px; color: #ff8080;
+        display: flex; align-items: center; gap: 4px;
+    }
+    .errorlist li::before { content: '✕'; font-size: 10px; }
+
+    /* Submit button */
+    .sub-submit {
+        width: 100%; padding: 14px 24px;
+        background: var(--gold); color: var(--black);
+        border: none; border-radius: var(--radius-pill);
+        font-family: var(--font-body);
+        font-size: 14px; font-weight: 700;
+        letter-spacing: 0.05em; text-transform: uppercase;
+        cursor: pointer; margin-top: 24px;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+    .sub-submit:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-gold);
+    }
+    .sub-submit:active { transform: translateY(0); }
+
+    /* Sidebar info card */
+    .sub-info-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        position: sticky;
+        top: calc(var(--nav-h) + 20px);
+    }
+    .sub-info-title {
+        font-size: 13px; font-weight: 600; color: var(--white);
+        margin-bottom: 16px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .sub-info-item {
+        display: flex; gap: 10px;
+        margin-bottom: 14px;
+        font-size: 13px; color: var(--white-dim);
+        line-height: 1.5;
+    }
+    .sub-info-item-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+    .sub-info-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .sub-info-note {
+        font-size: 12px; color: rgba(255,255,255,0.3);
+        line-height: 1.6; font-style: italic;
+    }
+
+    /* Back link */
+    .sub-back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; color: var(--white-dim);
+        margin-bottom: 24px;
+        transition: color var(--transition);
+    }
+    .sub-back:hover { color: var(--gold); }
+
+    @media (max-width: 900px) {
+        .sub-layout { grid-template-columns: 1fr; }
+        .sub-info-card { position: static; }
+    }
+    @media (max-width: 560px) {
+        .sub-grid-2 { grid-template-columns: 1fr; }
+        .sub-card-body { padding: 20px 16px; }
+    }
+
+
+    /* Coming Soon toggle */
+    .coming-soon-toggle {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        cursor: pointer;
+        user-select: none;
+    }
+    .coming-soon-toggle input[type="checkbox"] { display: none; }
+
+    .cs-box {
+        width: 20px; height: 20px;
+        border: 2px solid var(--border-hover);
+        border-radius: var(--radius-sm);
+        background: var(--deep);
+        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: background var(--transition), border-color var(--transition);
+        margin-top: 2px;
+    }
+    .cs-box svg { opacity: 0; transition: opacity 0.15s; color: var(--black); }
+
+    .coming-soon-toggle input:checked ~ .cs-box {
+        background: var(--gold);
+        border-color: var(--gold);
+    }
+    .coming-soon-toggle input:checked ~ .cs-box svg { opacity: 1; }
+
+    .cs-text { display: flex; flex-direction: column; gap: 2px; }
+    .cs-text strong { font-size: 14px; color: var(--white); }
+    .cs-text span { font-size: 12px; color: var(--white-dim); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<div class="sub-hero">
+    <div class="container">
+        <p class="sub-hero-label">🏆 Add to Calendar</p>
+        <h1 class="sub-hero-title">Submit a <em>Tournament</em></h1>
+        <p class="sub-hero-sub">Fill in the details below. Your tournament will appear on the calendar after review.</p>
+    </div>
+</div>
+
+<div class="sub-wrap">
+    <div class="container">
+
+        <a href="{% url 'tournaments:list' %}" class="sub-back">← Back to Calendar</a>
+
+        <div class="sub-layout">
+
+            <!-- LEFT: Form -->
+            <div>
+                <div class="sub-card">
+                    <div class="sub-card-accent"></div>
+                    <div class="sub-card-body">
+
+                        <form method="post" enctype="multipart/form-data" novalidate id="submitForm">
+                            {% csrf_token %}
+
+                            <!-- SECTION 1: Basic Info -->
+                            <div class="sub-section">
+                                <p class="sub-section-title">Basic Info</p>
+
+                                <div class="sub-field">
+                                    <label class="sub-label" for="id_name">
+                                        Tournament Name <span class="required">*</span>
+                                    </label>
+                                    <input type="text" name="name" id="id_name"
+                                        class="sub-input"
+                                        placeholder="e.g. Kathmandu Open 2025"
+                                        value="{{ form.name.value|default:'' }}" required>
+                                    {{ form.name.errors }}
+                                </div>
+
+                                <div class="sub-grid-2">
+                                    <div class="sub-field">
+                                        <label class="sub-label" for="id_format">Format <span class="required">*</span></label>
+                                        <select name="format" id="id_format" class="sub-select">
+                                            {% for val, label in form.fields.format.choices %}
+                                                <option value="{{ val }}" {% if form.format.value == val %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.format.errors }}
+                                    </div>
+                                    <div class="sub-field">
+                                        <label class="sub-label" for="id_category">Category <span class="required">*</span></label>
+                                        <select name="category" id="id_category" class="sub-select">
+                                            {% for val, label in form.fields.category.choices %}
+                                                <option value="{{ val }}" {% if form.category.value == val %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.category.errors }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SECTION 2: Location -->
+                            <div class="sub-section">
+                                <p class="sub-section-title">Location</p>
+
+                                <div class="sub-grid-2">
+                                    <div class="sub-field">
+                                        <label class="sub-label" for="id_city">City <span class="required">*</span></label>
+                                        <input type="text" name="city" id="id_city"
+                                            class="sub-input"
+                                            placeholder="e.g. Kathmandu"
+                                            value="{{ form.city.value|default:'' }}" required>
+                                        {{ form.city.errors }}
+                                    </div>
+                                    <div class="sub-field">
+                                        <label class="sub-label" for="id_venue_name">Venue Name <span class="required">*</span></label>
+                                        <input type="text" name="venue_name" id="id_venue_name"
+                                            class="sub-input"
+                                            placeholder="e.g. City Snooker Club"
+                                            value="{{ form.venue_name.value|default:'' }}" required>
+                                        {{ form.venue_name.errors }}
+                                    </div>
+                                </div>
+
+                                <div class="sub-field">
+                                    <label class="sub-label" for="id_venue_map_link">
+                                        Google Maps Link <span class="optional">(optional)</span>
+                                    </label>
+                                    <input type="url" name="venue_map_link" id="id_venue_map_link"
+                                        class="sub-input"
+                                        placeholder="https://maps.google.com/..."
+                                        value="{{ form.venue_map_link.value|default:'' }}">
+                                    {{ form.venue_map_link.errors }}
+                                </div>
+                            </div>
+
+                            <!-- SECTION 3: Dates -->
+                            
+                            <div class="sub-section">
+                                <p class="sub-section-title">Dates</p>
+
+                                <!-- Coming Soon toggle -->
+                                <div class="sub-field" style="margin-bottom: 20px;">
+                                    <label class="coming-soon-toggle" id="comingSoonLabel">
+                                        <input type="checkbox" name="is_coming_soon" id="id_coming_soon"
+                                            {% if form.is_coming_soon.value %}checked{% endif %}
+                                            onchange="toggleDates(this)">
+                                        <span class="cs-box">
+                                            <svg width="12" height="12" fill="none" stroke="currentColor"
+                                                stroke-width="3" viewBox="0 0 24 24">
+                                                <polyline points="20 6 9 17 4 12"/>
+                                            </svg>
+                                        </span>
+                                        <span class="cs-text">
+                                            <strong>Dates not confirmed yet</strong>
+                                            <span>Show this tournament as "Coming Soon"</span>
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <!-- Date fields (hidden when coming soon is checked) -->
+                                <div id="dateFields">
+                                    <div class="sub-grid-2">
+                                        <div class="sub-field">
+                                            <label class="sub-label" for="id_start_date">
+                                                Start Date <span class="required">*</span>
+                                            </label>
+                                            <input type="date" name="start_date" id="id_start_date"
+                                                class="sub-input"
+                                                value="{{ form.start_date.value|default:'' }}">
+                                            {{ form.start_date.errors }}
+                                        </div>
+                                        <div class="sub-field">
+                                            <label class="sub-label" for="id_end_date">
+                                                End Date <span class="required">*</span>
+                                            </label>
+                                            <input type="date" name="end_date" id="id_end_date"
+                                                class="sub-input"
+                                                value="{{ form.end_date.value|default:'' }}">
+                                            {{ form.end_date.errors }}
+                                        </div>
+                                    </div>
+                                    <div class="sub-field">
+                                        <label class="sub-label" for="id_registration_deadline">
+                                            Registration Deadline <span class="required">*</span>
+                                        </label>
+                                        <input type="date" name="registration_deadline"
+                                            id="id_registration_deadline"
+                                            class="sub-input"
+                                            value="{{ form.registration_deadline.value|default:'' }}">
+                                        {{ form.registration_deadline.errors }}
+                                    </div>
+                                </div>
+
+                                <!-- Coming soon message shown when checked -->
+                                <div id="comingSoonMsg" style="display:none;">
+                                    <div style="
+                                        background: rgba(201,168,76,0.08);
+                                        border: 1px solid rgba(201,168,76,0.2);
+                                        border-radius: var(--radius);
+                                        padding: 14px 16px;
+                                        font-size: 13px;
+                                        color: var(--gold-light);
+                                        line-height: 1.6;
+                                    ">
+                                        📅 This tournament will be listed as <strong>Coming Soon</strong>.
+                                        You can edit it later to add the exact dates once confirmed.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SECTION 4: Details -->
+                            <div class="sub-section">
+                                <p class="sub-section-title">Details</p>
+
+                                <div class="sub-grid-2">
+                                    <div class="sub-field">
+                                        <label class="sub-label" for="id_entry_fee">
+                                            Entry Fee (NPR) <span class="optional">(0 = Free)</span>
+                                        </label>
+                                        <input type="number" name="entry_fee" id="id_entry_fee"
+                                            class="sub-input"
+                                            placeholder="0" min="0"
+                                            value="{{ form.entry_fee.value|default:'0' }}">
+                                        {{ form.entry_fee.errors }}
+                                    </div>
+                                    <div class="sub-field">
+                                        <label class="sub-label" for="id_prize_money">
+                                            Prize Money (NPR) <span class="optional">(optional)</span>
+                                        </label>
+                                        <input type="number" name="prize_money" id="id_prize_money"
+                                            class="sub-input"
+                                            placeholder="0" min="0"
+                                            value="{{ form.prize_money.value|default:'0' }}">
+                                        {{ form.prize_money.errors }}
+                                    </div>
+                                </div>
+
+                                <div class="sub-grid-2">
+                                    <div class="sub-field">
+                                        <label class="sub-label" for="id_max_players">Max Players <span class="required">*</span></label>
+                                        <input type="number" name="max_players" id="id_max_players"
+                                            class="sub-input"
+                                            placeholder="32" min="2"
+                                            value="{{ form.max_players.value|default:'32' }}" required>
+                                        {{ form.max_players.errors }}
+                                    </div>
+                                    <div class="sub-field">
+                                        <label class="sub-label" for="id_contact_phone">
+                                            WhatsApp Number <span class="required">*</span>
+                                        </label>
+                                        <input type="tel" name="contact_phone" id="id_contact_phone"
+                                            class="sub-input"
+                                            placeholder="e.g. 9841XXXXXX"
+                                            value="{{ form.contact_phone.value|default:'' }}" required>
+                                        {{ form.contact_phone.errors }}
+                                    </div>
+                                </div>
+
+                                <div class="sub-field">
+                                    <label class="sub-label" for="id_description">
+                                        Description <span class="optional">(optional)</span>
+                                    </label>
+                                    <textarea name="description" id="id_description"
+                                        class="sub-textarea"
+                                        placeholder="Any extra details — rules, format, special conditions...">{{ form.description.value|default:'' }}</textarea>
+                                    {{ form.description.errors }}
+                                </div>
+                            </div>
+
+                            <!-- SECTION 5: Poster -->
+                            <div class="sub-section">
+                                <p class="sub-section-title">Tournament Poster</p>
+                                <div class="sub-field">
+                                    <label class="sub-file-label" id="posterLabel">
+                                        <input type="file" name="poster" id="id_poster"
+                                            accept="image/*"
+                                            onchange="updatePosterName(this)">
+                                        <span class="sub-file-icon">🖼️</span>
+                                        <span>Tap to upload a poster image</span>
+                                        <span class="sub-file-hint">JPG, PNG — shown on the calendar card</span>
+                                    </label>
+                                    <p class="sub-file-chosen" id="posterName"></p>
+                                    {{ form.poster.errors }}
+                                </div>
+                            </div>
+
+                            <!-- Submit -->
+                            <button type="submit" class="sub-submit" id="subBtn">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/>
+                                </svg>
+                                Submit Tournament for Review
+                            </button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Info sidebar -->
+            <div>
+                <div class="sub-info-card">
+                    <p class="sub-info-title">📋 How it works</p>
+
+                    <div class="sub-info-item">
+                        <span class="sub-info-item-icon">1️⃣</span>
+                        <span>Fill in your tournament details and submit the form.</span>
+                    </div>
+                    <div class="sub-info-item">
+                        <span class="sub-info-item-icon">2️⃣</span>
+                        <span>The Snooker Nepal team reviews your submission — usually within 24 hours.</span>
+                    </div>
+                    <div class="sub-info-item">
+                        <span class="sub-info-item-icon">3️⃣</span>
+                        <span>Once approved, your tournament appears live on the calendar for players to register.</span>
+                    </div>
+
+                    <hr class="sub-info-divider">
+
+                    <div class="sub-info-item">
+                        <span class="sub-info-item-icon">💬</span>
+                        <span>Questions? WhatsApp us at <strong style="color:var(--white);">+977 98XXXXXXXX</strong></span>
+                    </div>
+
+                    <hr class="sub-info-divider">
+
+                    <p class="sub-info-note">
+                        Tournaments that are incomplete, duplicate, or not snooker-related will not be approved.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updatePosterName(input) {
+        const name  = document.getElementById('posterName');
+        const label = document.getElementById('posterLabel');
+        if (input.files && input.files[0]) {
+            name.textContent  = '✓ ' + input.files[0].name;
+            label.style.borderColor = 'var(--gold)';
+            label.style.color       = 'var(--gold-light)';
+        }
+    }
+
+    // Prevent double submit
+    const form = document.getElementById('submitForm');
+    const btn  = document.getElementById('subBtn');
+    if (form && btn) {
+        form.addEventListener('submit', () => {
+            btn.disabled    = true;
+            btn.textContent = '⏳ Submitting...';
+        });
+    }
+
+    // Focus styling
+    document.querySelectorAll('.sub-input, .sub-select, .sub-textarea').forEach(el => {
+        el.addEventListener('focus', () => {
+            el.style.borderColor = 'var(--gold)';
+            el.style.boxShadow   = '0 0 0 3px rgba(201,168,76,0.1)';
+            el.style.background  = 'var(--off-black)';
+        });
+        el.addEventListener('blur', () => {
+            el.style.borderColor = 'var(--border)';
+            el.style.boxShadow   = 'none';
+            el.style.background  = 'var(--deep)';
+        });
+    });
+
+    function toggleDates(checkbox) {
+        const dateFields    = document.getElementById('dateFields');
+        const comingSoonMsg = document.getElementById('comingSoonMsg');
+        if (checkbox.checked) {
+            dateFields.style.display    = 'none';
+            comingSoonMsg.style.display = 'block';
+        } else {
+            dateFields.style.display    = 'block';
+            comingSoonMsg.style.display = 'none';
+        }
+    }
+
+    // Run on page load in case form is reloaded with coming_soon already checked
+    const cs = document.getElementById('id_coming_soon');
+    if (cs && cs.checked) toggleDates(cs);
+</script>
+{% endblock %}

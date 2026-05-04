@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'cart.apps.CartConfig',
     'orders.apps.OrdersConfig',
     'accounts.apps.AccountsConfig',
+    'tournaments.apps.TournamentsConfig',
 ]
 
 SITE_ID = 1
@@ -184,6 +185,8 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 
 
