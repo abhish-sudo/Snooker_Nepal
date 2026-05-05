@@ -467,8 +467,25 @@ def stripe_success(request):
         session      = stripe.checkout.Session.retrieve(session_id)
         order_number = session.metadata.get('order_number')
         order        = get_object_or_404(Order, order_number=order_number)
+
+        # Update order if not already paid
+        # (webhook may not have fired yet — handle it here too)
+        if not order.is_paid and session.payment_status == 'paid':
+            with transaction.atomic():
+                order.is_paid        = True
+                order.status         = 'paid'
+                order.payment_method = 'stripe'
+                order.payment_id     = session.get('payment_intent', '')
+                order.paid_at        = timezone.now()
+                order.save()
+                _reduce_stock(order)
+
+            cart = Cart(request)
+            cart.clear()
+
         return redirect('orders:success_page', order_number=order.order_number)
-    except Exception:
+
+    except Exception as e:
         return redirect('orders:failure_page_no_order')
 
 
