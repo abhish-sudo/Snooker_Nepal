@@ -336,8 +336,8 @@
           <input type="hidden" name="product_code" value="{{ product_code }}">
           <input type="hidden" name="product_service_charge" value="0.00">
           <input type="hidden" name="product_delivery_charge" value="0.00">
-          <input type="hidden" name="success_url" value="{% url 'orders:success' %}">
-          <input type="hidden" name="failure_url" value="{% url 'orders:failure' %}">
+          <input type="hidden" name="success_url" value="https://snookernepal.com{% url 'orders:success' %}">
+          <input type="hidden" name="failure_url" value="https://snookernepal.com{% url 'orders:failure' %}">
           <input type="hidden" name="signed_field_names" value="total_amount,transaction_uuid,product_code">
           <input type="hidden" name="signature" value="{{ signature }}">
 
